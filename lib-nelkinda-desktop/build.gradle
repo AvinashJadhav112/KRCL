@@ -1,0 +1,4 @@
+dependencies {
+    implementation 'net.java.linoleum:jlfgr:1_0'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin'
+}

@@ -1,0 +1,63 @@
+plugins {
+    id 'org.springframework.boot' version '2.6.4'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
+    implementation 'org.postgresql:postgresql'
+    implementation 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    testImplementation 'com.github.tomakehurst:wiremock-jre8'
+    testImplementation 'io.cucumber:cucumber-spring'
+    testImplementation 'io.cucumber:cucumber-java'
+    testImplementation 'io.github.bonigarcia:webdrivermanager'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin'
+    testImplementation 'org.seleniumhq.selenium:selenium-java'
+    testImplementation 'org.skyscreamer:jsonassert'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.jupiter', module: 'junit-jupiter'
+        exclude group: 'org.junit.jupiter', module: 'junit-jupiter-api'
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+bootJar {
+    manifest {
+        attributes(
+                'Implementation-Title': 'VerveTronics IoT Cloud Application',
+                'Implementation-Version': project.version,
+        )
+    }
+}
+
+springBoot {
+    buildInfo {
+        properties {
+            additional = [
+                    'commitId': System.getenv('GIT_COMMIT') ?: 'unknown'
+            ]
+        }
+    }
+}

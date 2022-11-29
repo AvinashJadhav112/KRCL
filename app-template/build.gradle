@@ -1,0 +1,42 @@
+plugins {
+    id 'org.springframework.boot' version '2.6.4'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    implementation project(':lib-template')
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
+    implementation 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    testImplementation 'com.github.tomakehurst:wiremock-jre8'
+    testImplementation 'io.cucumber:cucumber-spring'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin'
+    testImplementation 'org.skyscreamer:jsonassert'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.jupiter', module: 'junit-jupiter'
+        exclude group: 'org.junit.jupiter', module: 'junit-jupiter-api'
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+}
+
+springBoot {
+    buildInfo {
+        properties {
+            additional = [
+                    'commitId': System.getenv('GIT_COMMIT') ?: 'unknown'
+            ]
+        }
+    }
+}

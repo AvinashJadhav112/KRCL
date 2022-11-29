@@ -1,0 +1,8 @@
+dependencies {
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
+    testImplementation 'com.github.tomakehurst:wiremock-jre8'
+    testImplementation 'io.cucumber:cucumber-spring'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin'
+    testImplementation 'org.skyscreamer:jsonassert'
+    testImplementation 'com.github.stefanbirkner:system-lambda'
+}

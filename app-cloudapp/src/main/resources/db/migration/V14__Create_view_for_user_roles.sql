@@ -1,0 +1,1 @@
+create or replace view show_user_roles as select users.email, users.user_id, users_roles.role_id, roles.name  from users INNER JOIN users_roles ON users.user_id=users_roles.user_id INNER JOIN roles ON users_roles.role_id=roles.role_id;

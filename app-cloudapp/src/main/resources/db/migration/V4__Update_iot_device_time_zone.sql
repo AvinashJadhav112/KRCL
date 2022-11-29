@@ -1,0 +1,1 @@
+ALTER TABLE iot_devices ADD COLUMN timezone VARCHAR DEFAULT '+00:00';

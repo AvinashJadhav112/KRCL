@@ -1,0 +1,38 @@
+plugins {
+    id 'org.springframework.boot' version '2.6.4'
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
+dependencies {
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    implementation project(':lib-sensorstore')
+    implementation project(':lib-nelkinda-core')
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
+    implementation 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'com.influxdb:influxdb-client-kotlin:4.3.0'
+
+    testImplementation 'com.github.docker-java:docker-java-core:3.2.13'
+    testImplementation 'com.github.docker-java:docker-java-transport-httpclient5:3.2.13'
+    testImplementation 'com.github.tomakehurst:wiremock-jre8'
+    testImplementation 'io.cucumber:cucumber-spring'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin'
+    testImplementation 'org.skyscreamer:jsonassert'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.jupiter', module: 'junit-jupiter'
+        exclude group: 'org.junit.jupiter', module: 'junit-jupiter-api'
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+}

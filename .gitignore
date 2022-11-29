@@ -1,0 +1,29 @@
+# Gradle
+.gradle/
+build/
+local.properties
+
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# Java
+java_pid*.hprof
+hs_err_*.log
+
+# Make
+.help.mk
+.makehelp/
+.makelint/
+.makelint_success
+.User.mk
+
+# Vim
+*.swp
+
+app-frontend/.npmBuildTimestamp
+app-material-ui-frontend/iot-vt/.npmBuildTimestamp
+
+/logs/
+/app-cloudapp/logs/

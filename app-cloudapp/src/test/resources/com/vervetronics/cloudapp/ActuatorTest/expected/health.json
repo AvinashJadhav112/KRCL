@@ -1,0 +1,27 @@
+{
+   "status" : "UP",
+   "components" : {
+      "db" : {
+         "status" : "UP",
+         "details" : {
+            "database" : "PostgreSQL",
+            "validationQuery" : "isValid()"
+         }
+      },
+      "diskSpace" : {
+         "status" : "UP",
+         "details" : {
+         }
+      },
+      "tools": {
+         "status" : "UP",
+         "details" : {
+            "Kotlin": {},
+            "Java": {}
+         }
+      },
+      "ping" : {
+         "status" : "UP"
+      }
+   }
+}

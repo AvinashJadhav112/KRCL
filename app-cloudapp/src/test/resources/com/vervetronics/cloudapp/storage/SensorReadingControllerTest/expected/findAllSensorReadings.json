@@ -1,0 +1,20 @@
+[
+  {
+    "factoryDeviceId" : "55AA55AA55AA55AA55AA55AA55AA0000",
+    "timestamp" : "2020-12-28T12:00:00Z",
+    "value" : "01020304",
+    "sensorId" : 1
+  },
+  {
+    "factoryDeviceId" : "55AA55AA55AA55AA55AA55AA55AA0000",
+    "timestamp" : "2020-12-28T12:00:00Z",
+    "value" : "01020305",
+    "sensorId" : 1
+  },
+  {
+    "factoryDeviceId" : "55AA55AA55AA55AA55AA55AA55AA0000",
+    "timestamp" : "2020-12-28T12:00:00Z",
+    "value" : "01020306",
+    "sensorId" : 1
+  }
+]

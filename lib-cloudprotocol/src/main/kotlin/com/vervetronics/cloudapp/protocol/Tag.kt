@@ -1,0 +1,18 @@
+package com.vervetronics.cloudapp.protocol
+@ExperimentalUnsignedTypes
+enum class Tag(val tag: UByte) {
+    GSM_SIGNAL_STRENGTH(0x01u),
+    FACTORY_DEVICE_IDENTIFIER(0x02u),
+    CURRENT_TIME_BINARY(0x03u),
+    FIRMWARE_VERSION(0x05u),
+    SENSOR_READING(0x07u),
+    CURRENT_TIME_BCD(0x08u),
+    CONTEXT_DATE(0x0Au),
+    ERROR(0x7Fu),
+    CONFIG_REQUEST_FIRMWARE_DOWNLOAD(0x10u),
+    FIRMWARE_ACTIVE_REGION(0x0Cu),
+    FIRMWARE_OFFSET_POINTER(0x0Du),
+    FIRMWARE_BINARY_DATA(0x0Eu),
+    FIRMWARE_FRAME_TYPE(0x0Fu),
+    ;
+}

@@ -1,0 +1,11 @@
+{
+   "app": {
+      "name": "VerveTronics CloudApp Application"
+   },
+   "build": {
+      "artifact": "app-cloudapp",
+      "group": "com.vervetronics.cloudapp",
+      "name": "app-cloudapp",
+      "version": "0.0.1-SNAPSHOT"
+   }
+}

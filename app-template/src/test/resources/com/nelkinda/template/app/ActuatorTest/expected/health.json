@@ -1,0 +1,13 @@
+{
+   "status" : "UP",
+   "components" : {
+      "diskSpace" : {
+         "status" : "UP",
+         "details" : {
+         }
+      },
+      "ping" : {
+         "status" : "UP"
+      }
+   }
+}

@@ -1,0 +1,1 @@
+create or replace view show_user_device_linking as select user_details.user_details_id, user_details.email, user_devices.devices_id from user_details INNER JOIN user_devices on user_details.email=user_devices.email;
