@@ -155,7 +155,7 @@ class EquipmentWise extends React.Component {
       sReadingFive: [],
       sReadingSix: [],
       sReadingSeven: [],
-      converterhd: require('hex2dec'),
+      converterhd: '',
       errors: {},
 
       Readingdata: [],
@@ -256,7 +256,7 @@ class EquipmentWise extends React.Component {
       });
       console.log(this.state.isDataSplit);
       if (this.state.isDataSplit) {
-        const result = await axios.all(this.state.Storesensor.map((u) => axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${u.substring(1, 5)}/readings?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`)));
+        const result = await axios.all(this.state.Storesensor.map((u) => axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${u.substring(1, 5)}/readings/calculated?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`)));
         this.setState({ loadingData: false });
         const sensorData = result[0].data;
         this.setState({ sensorData });
@@ -361,7 +361,8 @@ class EquipmentWise extends React.Component {
         this.setState({ loadingData: false });
         this.setState({ plotData: `${this.state.addedProducts} ${this.state.date} ` });
       } else {
-        const ress = await axios.all(this.state.Storesensor.map((u) => axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${u.substring(1, 5)}/readings?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`)));
+        const ress = await axios.all(this.state.Storesensor.map((u) => axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${u.substring(1, 5)}/readings/calculated?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`)));
+        console.log(ress);
         for (let i = 0; i < ress.length; i++) {
           i;
 
@@ -566,9 +567,9 @@ class EquipmentWise extends React.Component {
         Storesensor.map((ms) => {
           this.state.Storesensor = ms;
         });
-        const ress = await axios.all(this.state.Storesensor.map((u) => axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${u.substring(1, 5)}/readings?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`)));
-        const resss = await axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${this.state.selectXAxisData.substring(0, 4)}/readings?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`);
-        const ressss = await axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${this.state.selectYAxisData.substring(0, 4)}/readings?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`);
+        const ress = await axios.all(this.state.Storesensor.map((u) => axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${u.substring(1, 5)}/readings/calculated?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`)));
+        const resss = await axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${this.state.selectXAxisData.substring(0, 4)}/readings/calculated?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`);
+        const ressss = await axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${this.state.selectYAxisData.substring(0, 4)}/readings/calculated?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`);
         this.setState({
           selectedXsensorData: resss.data,
         });
@@ -577,6 +578,7 @@ class EquipmentWise extends React.Component {
           i; // i is the index
 
           if (ress.length == 1) {
+            console.log(ress);
             this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
           } else if (ress.length == 2) {
             this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
@@ -710,65 +712,66 @@ class EquipmentWise extends React.Component {
           const time12 = [];
 
           getdata1.forEach((record) => {
+            console.log(record);
             time.push(record.timestamp.slice(record.timestamp.length - 14));
             sid.push(record.value);
-            deci.push(converter.hexToDec(record.value));
+            deci.push(record.value);
           });
           getdata2.forEach((record) => {
             time1.push(record.timestamp.slice(record.timestamp.length - 14));
             sid1.push(record.value);
-            deci1.push(converter.hexToDec(record.value));
+            deci1.push(record.value);
           });
           getdata3.forEach((record) => {
             time2.push(record.timestamp.slice(record.timestamp.length - 14));
             sid2.push(record.value);
-            deci2.push(converter.hexToDec(record.value));
+            deci2.push(record.value);
           });
           getdata4.forEach((record) => {
             time3.push(record.timestamp.slice(record.timestamp.length - 14));
             sid3.push(record.value);
-            deci3.push(converter.hexToDec(record.value));
+            deci3.push(record.value);
           });
           getdata5.forEach((record) => {
             time4.push(record.timestamp.slice(record.timestamp.length - 14));
             sid4.push(record.value);
-            deci4.push(converter.hexToDec(record.value));
+            deci4.push(record.value);
           });
           getdata6.forEach((record) => {
             time5.push(record.timestamp.slice(record.timestamp.length - 14));
             sid5.push(record.value);
-            deci5.push(converter.hexToDec(record.value));
+            deci5.push(record.value);
           });
           getdata7.forEach((record) => {
             time6.push(record.timestamp.slice(record.timestamp.length - 14));
             sid6.push(record.value);
-            deci6.push(converter.hexToDec(record.value));
+            deci6.push(record.value);
           });
           getdata8.forEach((record) => {
             time7.push(record.timestamp.slice(record.timestamp.length - 14));
             sid7.push(record.value);
-            deci7.push(converter.hexToDec(record.value));
+            deci7.push(record.value);
           });
           getdata9.forEach((record) => {
             time8.push(record.timestamp.slice(record.timestamp.length - 14));
             sid8.push(record.value);
-            deci8.push(converter.hexToDec(record.value));
+            deci8.push(record.value);
           });
           getdata10.forEach((record) => {
             time9.push(record.timestamp.slice(record.timestamp.length - 14));
             sid9.push(record.value);
-            deci9.push(converter.hexToDec(record.value));
+            deci9.push(record.value);
           });
 
           getdata11.forEach((record) => {
             time10.push(record.timestamp.slice(record.timestamp.length - 14));
             sid10.push(record.value);
-            deci10.push(converter.hexToDec(record.value));
+            deci10.push(record.value);
           });
           getdata12.forEach((record) => {
             time11.push(record.timestamp.slice(record.timestamp.length - 14));
             sid11.push(record.value);
-            deci11.push(converter.hexToDec(record.value));
+            deci11.push(record.value);
           });
           getdata11.forEach((record) => {
             time12.push(record.timestamp.slice(record.timestamp.length - 14));
@@ -995,7 +998,7 @@ class EquipmentWise extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
@@ -1006,7 +1009,7 @@ class EquipmentWise extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
@@ -1017,7 +1020,7 @@ class EquipmentWise extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
@@ -1028,7 +1031,7 @@ class EquipmentWise extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
@@ -1039,7 +1042,7 @@ class EquipmentWise extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
@@ -1050,7 +1053,7 @@ class EquipmentWise extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
@@ -1061,7 +1064,7 @@ class EquipmentWise extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
@@ -1072,7 +1075,7 @@ class EquipmentWise extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
@@ -1083,12 +1086,11 @@ class EquipmentWise extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
     }
-    console.log(rows);
     // end data grid table code
 
     return (
@@ -1477,8 +1479,8 @@ class EquipmentWise extends React.Component {
         })()}
 
       </div>
-
     );
   }
 }
+
 export default EquipmentWise;

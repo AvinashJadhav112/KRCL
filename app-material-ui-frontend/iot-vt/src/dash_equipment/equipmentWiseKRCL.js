@@ -1,6 +1,5 @@
+/* eslint-disable react/jsx-indent */
 /* eslint-disable no-inner-declarations */
-/* eslint-disable camelcase */
-/* eslint-disable react/jsx-pascal-case */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-alert */
 /* eslint-disable no-empty */
@@ -41,7 +40,7 @@ import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import axios from 'axios';
-import { Line, Scatter } from 'react-chartjs-2';
+import { Bar, Line, Scatter } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -53,7 +52,7 @@ import {
   Legend,
 } from 'chart.js';
 import {
-  DataGrid, GridToolbar, GridToolbarExport, GridCsvExportOptions,
+  DataGrid, GridToolbarExport,
 } from '@mui/x-data-grid';
 import uuid from 'react-uuid';
 import LoadingSpinner from '../components/loadingSpinner';
@@ -95,7 +94,7 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-class EquipmentWiseKRCL extends React.Component {
+class EquipmentWise extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -140,7 +139,7 @@ class EquipmentWiseKRCL extends React.Component {
       plotData: '',
       plotGraph: '',
       plotDataid: '',
-      Data: {},
+      Data: [{}],
       Data1: {},
       paginationdata: [],
       activePage: 1,
@@ -156,7 +155,7 @@ class EquipmentWiseKRCL extends React.Component {
       sReadingFive: [],
       sReadingSix: [],
       sReadingSeven: [],
-      converterhd: require('hex2dec'),
+      converterhd: '',
       errors: {},
 
       Readingdata: [],
@@ -182,21 +181,33 @@ class EquipmentWiseKRCL extends React.Component {
       xAxis: [],
       yAxis: [],
       y1Axis: [],
+
+      dataSets: [{}],
       colors: [],
-
     };
-
     this.handleDropdownChange = this.handleDropdownChange.bind(this);
     this.handleButton = this.handleButton.bind(this);
     this.handlePlotdata = this.handlePlotdata.bind(this);
     this.handlePlotGraph = this.handlePlotGraph.bind(this);
   }
 
+  async componentDidMount() {
+    const url = 'http://192.168.0.194:5005/api/1.0/dashboard/devices';
+    const response = await axios.get(url);
+    const a = this.state.selectValue;
+
+    this.setState({ sensorReadingOne: response.data, loading: true });
+    (error) => {
+      this.handleError(error);
+      return error;
+    };
+  }
+
   fetchDevices = () => {
-    fetch('http://192.168.0.194:5005/api/1.0/devices')
+    fetch('http://192.168.0.194:5005/api/1.0/dashboard/devices')
       .then((response) => response.json())
       .then((devicelist) => {
-        this.setState({ sensorReadingOne: devicelist.filter((companyData) => companyData.companyName === 'KRCL'), loading: true });
+        this.setState({ sensorReadingOne: devicelist, loading: true });
       });
   }
 
@@ -206,15 +217,12 @@ class EquipmentWiseKRCL extends React.Component {
 
   async handleDropdownChange(e) {
     try {
-      setInterval(async () => {
-        const selectValue = e.target.value;
-        this.setState({ selectValue });
-        const res = await axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/devices/${selectValue}/sensors/latest/calculated`);
-        const { data } = res;
-        this.setState({ sensorReadingTwo: res.data.latestSensorData, loading: true });
-      }, 500);
+      const selectValue = e.target.value;
+      this.setState({ selectValue });
+      const res = await axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/devices/${selectValue}/sensors/latest/calculated`);
+      this.setState({ sensorReadingTwo: res.data.latestSensorData, loading: true });
     } catch (a) {
-      // console.log(a);
+      console.log(a);
     }
   }
 
@@ -248,7 +256,7 @@ class EquipmentWiseKRCL extends React.Component {
       });
       console.log(this.state.isDataSplit);
       if (this.state.isDataSplit) {
-        const result = await axios.all(this.state.Storesensor.map((u) => axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${u.substring(1, 5)}/readings?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`)));
+        const result = await axios.all(this.state.Storesensor.map((u) => axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${u.substring(1, 5)}/readings/calculated?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`)));
         this.setState({ loadingData: false });
         const sensorData = result[0].data;
         this.setState({ sensorData });
@@ -258,7 +266,6 @@ class EquipmentWiseKRCL extends React.Component {
         function getUnique(array) {
           var uniqueArray = [];
 
-          // Loop through array values
           for (let i = 0; i < array.length; i++) {
             if (uniqueArray.indexOf(array[i]) === -1) {
               uniqueArray.push(array[i]);
@@ -345,13 +352,19 @@ class EquipmentWiseKRCL extends React.Component {
           }
         }
         console.log(dataSets);
+        // dataSets[1] = {
+        //     label: '2nd',
+        //     data: '2nd',
+        // }
+        console.log(dataSets);
         this.setState({ Data: dataSets });
         this.setState({ loadingData: false });
         this.setState({ plotData: `${this.state.addedProducts} ${this.state.date} ` });
       } else {
-        const ress = await axios.all(this.state.Storesensor.map((u) => axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${u.substring(1, 5)}/readings?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`)));
+        const ress = await axios.all(this.state.Storesensor.map((u) => axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${u.substring(1, 5)}/readings/calculated?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`)));
+        console.log(ress);
         for (let i = 0; i < ress.length; i++) {
-          i; // is the index
+          i;
 
           if (ress.length == 1) {
             this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
@@ -424,7 +437,6 @@ class EquipmentWiseKRCL extends React.Component {
         var converter = require('hex2dec');
 
         const dec = converter.hexToDec('0xFA');
-        // console.log(dec);
 
         console.log(this.state.sensorReadingOneTwo);
         console.log(this.state.sensorReadOneTwo);
@@ -555,9 +567,9 @@ class EquipmentWiseKRCL extends React.Component {
         Storesensor.map((ms) => {
           this.state.Storesensor = ms;
         });
-        const ress = await axios.all(this.state.Storesensor.map((u) => axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${u.substring(1, 5)}/readings?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`)));
-        const resss = await axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${this.state.selectXAxisData.substring(0, 4)}/readings?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`);
-        const ressss = await axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${this.state.selectYAxisData.substring(0, 4)}/readings?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`);
+        const ress = await axios.all(this.state.Storesensor.map((u) => axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${u.substring(1, 5)}/readings/calculated?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`)));
+        const resss = await axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${this.state.selectXAxisData.substring(0, 4)}/readings/calculated?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`);
+        const ressss = await axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${this.state.selectYAxisData.substring(0, 4)}/readings/calculated?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`);
         this.setState({
           selectedXsensorData: resss.data,
         });
@@ -566,6 +578,7 @@ class EquipmentWiseKRCL extends React.Component {
           i; // i is the index
 
           if (ress.length == 1) {
+            console.log(ress);
             this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
           } else if (ress.length == 2) {
             this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
@@ -699,68 +712,69 @@ class EquipmentWiseKRCL extends React.Component {
           const time12 = [];
 
           getdata1.forEach((record) => {
+            console.log(record);
             time.push(record.timestamp.slice(record.timestamp.length - 14));
             sid.push(record.value);
-            deci.push(converter.hexToDec(record.value));
-          }); 3295;
+            deci.push(record.value);
+          });
           getdata2.forEach((record) => {
             time1.push(record.timestamp.slice(record.timestamp.length - 14));
             sid1.push(record.value);
-            deci1.push(converter.hexToDec(record.value));
+            deci1.push(record.value);
           });
           getdata3.forEach((record) => {
             time2.push(record.timestamp.slice(record.timestamp.length - 14));
             sid2.push(record.value);
-            deci2.push(converter.hexToDec(record.value));
+            deci2.push(record.value);
           });
           getdata4.forEach((record) => {
             time3.push(record.timestamp.slice(record.timestamp.length - 14));
             sid3.push(record.value);
-            deci3.push(converter.hexToDec(record.value));
+            deci3.push(record.value);
           });
           getdata5.forEach((record) => {
             time4.push(record.timestamp.slice(record.timestamp.length - 14));
             sid4.push(record.value);
-            deci4.push(converter.hexToDec(record.value));
+            deci4.push(record.value);
           });
           getdata6.forEach((record) => {
             time5.push(record.timestamp.slice(record.timestamp.length - 14));
             sid5.push(record.value);
-            deci5.push(converter.hexToDec(record.value));
+            deci5.push(record.value);
           });
           getdata7.forEach((record) => {
             time6.push(record.timestamp.slice(record.timestamp.length - 14));
             sid6.push(record.value);
-            deci6.push(converter.hexToDec(record.value));
+            deci6.push(record.value);
           });
           getdata8.forEach((record) => {
             time7.push(record.timestamp.slice(record.timestamp.length - 14));
             sid7.push(record.value);
-            deci7.push(converter.hexToDec(record.value));
+            deci7.push(record.value);
           });
           getdata9.forEach((record) => {
             time8.push(record.timestamp.slice(record.timestamp.length - 14));
             sid8.push(record.value);
-            deci8.push(converter.hexToDec(record.value));
+            deci8.push(record.value);
           });
           getdata10.forEach((record) => {
             time9.push(record.timestamp.slice(record.timestamp.length - 14));
             sid9.push(record.value);
-            deci9.push(converter.hexToDec(record.value));
+            deci9.push(record.value);
           });
 
           getdata11.forEach((record) => {
             time10.push(record.timestamp.slice(record.timestamp.length - 14));
             sid10.push(record.value);
-            deci10.push(converter.hexToDec(record.value));
+            deci10.push(record.value);
           });
           getdata12.forEach((record) => {
             time11.push(record.timestamp.slice(record.timestamp.length - 14));
             sid11.push(record.value);
-            deci11.push(converter.hexToDec(record.value));
+            deci11.push(record.value);
           });
           getdata11.forEach((record) => {
-            time12.push(record.timestamp.slice(record.timestamp.length - 14));
+            time12.push(record.value);
           });
 
           this.state.result = time10.map((d) => d.slice(7, 9));
@@ -838,8 +852,9 @@ class EquipmentWiseKRCL extends React.Component {
 
   onSubmitTwo = (e) => {
     e.preventDefault();
+    // this.handlePlotdata();
     if (this.validate()) {
-
+      // comment
     }
   }
 
@@ -922,9 +937,9 @@ class EquipmentWiseKRCL extends React.Component {
     let txt9;
     txt9 = this.state.sensorId;
 
-    // for paper grid
     const rows = [];
     let columns = [];
+
     const values = {
       someDate: '2017-08-07',
       startTime: '12:30',
@@ -976,7 +991,6 @@ class EquipmentWiseKRCL extends React.Component {
           field: 'value', headerName: 'Value', width: 400,
         },
       ];
-      // console.log(row);
 
       this.state.sensorReadingOneTwo.map((it) => {
         rows.push(
@@ -984,7 +998,7 @@ class EquipmentWiseKRCL extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
@@ -995,7 +1009,7 @@ class EquipmentWiseKRCL extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
@@ -1006,7 +1020,7 @@ class EquipmentWiseKRCL extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
@@ -1017,7 +1031,7 @@ class EquipmentWiseKRCL extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
@@ -1028,7 +1042,7 @@ class EquipmentWiseKRCL extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
@@ -1039,7 +1053,7 @@ class EquipmentWiseKRCL extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
@@ -1050,7 +1064,7 @@ class EquipmentWiseKRCL extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
@@ -1061,7 +1075,7 @@ class EquipmentWiseKRCL extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
@@ -1072,12 +1086,11 @@ class EquipmentWiseKRCL extends React.Component {
             id: uuid(),
             sensorId: it.sensorId,
             timestamp: it.timestamp,
-            value: this.state.converterhd.hexToDec(it.value),
+            value: it.value,
           },
         );
       });
     }
-    console.log(rows);
     // end data grid table code
 
     return (
@@ -1297,7 +1310,6 @@ class EquipmentWiseKRCL extends React.Component {
                     <select
                       name="selectYAxisData"
                       type="text"
-                      // className="form-control"
                       className={`form-control
                 ${this.state.errors.selectYAxisData ? 'is-invalid' : ''}`}
                       value={this.state.selectYAxisData}
@@ -1333,8 +1345,6 @@ class EquipmentWiseKRCL extends React.Component {
             return <h1> </h1>;
           }
           if (this.state.isDataSplit) {
-            console.log(`Dataset ===> ${this.state.dataSets}`);
-            console.log(this.state.Data);
             return (
 
               <div className="col-md-12 col-sm-12  redemption-container pd-30-0 bg-gray">
@@ -1473,4 +1483,4 @@ class EquipmentWiseKRCL extends React.Component {
     );
   }
 }
-export default EquipmentWiseKRCL;
+export default EquipmentWise;

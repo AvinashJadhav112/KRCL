@@ -1,32 +1,36 @@
-/* eslint-disable no-alert */
-/* eslint-disable import/no-cycle */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable react/jsx-key */
+/* eslint-disable react/jsx-indent */
+/* eslint-disable no-inner-declarations */
 /* eslint-disable class-methods-use-this */
+/* eslint-disable no-alert */
+/* eslint-disable no-empty */
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable jsx-a11y/heading-has-content */
+/* eslint-disable no-return-assign */
+/* eslint-disable consistent-return */
+/* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable react/no-array-index-key */
 /* eslint-disable react/jsx-props-no-multi-spaces */
-/* eslint-disable no-shadow */
+/* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable jsx-a11y/control-has-associated-label */
+/* eslint-disable prefer-const */
+/* eslint-disable max-len */
 /* eslint-disable no-sequences */
-/* eslint-disable no-undef */
 /* eslint-disable no-loop-func */
 /* eslint-disable vars-on-top */
 /* eslint-disable no-var */
-/* eslint-disable global-require */
-/* eslint-disable react/sort-comp */
-/* eslint-disable eqeqeq */
 /* eslint-disable no-unused-expressions */
-/* eslint-disable no-plusplus */
-/* eslint-disable react/no-array-index-key */
-
-/* eslint-disable prefer-const */
 /* eslint-disable array-callback-return */
-/* eslint-disable max-len */
+/* eslint-disable no-plusplus */
+/* eslint-disable eqeqeq */
 /* eslint-disable react/no-access-state-in-setstate */
+/* eslint-disable global-require */
 /* eslint-disable no-console */
 /* eslint-disable react/destructuring-assignment */
-/* eslint-disable no-dupe-keys */
+/* eslint-disable react/sort-comp */
 /* eslint-disable react/no-unused-state */
+/* eslint-disable react/jsx-key */
 /* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
 import * as React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
@@ -36,28 +40,32 @@ import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import axios from 'axios';
-import { Line } from 'react-chartjs-2';
-import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+import { Bar, Line, Scatter } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import {
+  DataGrid, GridToolbarExport,
+} from '@mui/x-data-grid';
+import uuid from 'react-uuid';
+import LoadingSpinner from '../components/loadingSpinner';
 
-const tableStyle = {
-  border: '1px solid black',
-  borderCollapse: 'collapse',
-  textAlign: 'center',
-};
-
-const tdStyle = {
-  border: '1px solid #85C1E9',
-  background: 'white',
-  padding: '5px',
-
-};
-
-const thStyle = {
-  border: '1px solid #3498DB',
-  background: '#3498DB',
-  color: 'white',
-  padding: '5px',
-};
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+);
 
 const useStyles = makeStyles((theme) => ({
 
@@ -86,7 +94,7 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-class Test extends React.Component {
+class EquipmentWise extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -129,8 +137,9 @@ class Test extends React.Component {
 
       sensorid: '0000',
       plotData: '',
+      plotGraph: '',
       plotDataid: '',
-      Data: {},
+      Data: [{}],
       Data1: {},
       paginationdata: [],
       activePage: 1,
@@ -153,51 +162,52 @@ class Test extends React.Component {
       addedsensor: [],
       Deviceid: [],
       result: [],
+      result2: [],
+      selectXAxisData: '',
+      selectYAxisData: '',
+      selectedXsensorData: '',
+      selectedYsensorData: '',
+      storeSelectedSensor: {},
+      selectedXaxisValidation: '',
+      selectedYaxisValidation: '',
 
+      selectedSensorsData: '',
+      loadingData: false,
+      loadingGraph: false,
+
+      selectxaxis: '',
+      selectyaxis: '',
+
+      xAxis: [],
+      yAxis: [],
+      y1Axis: [],
+
+      dataSets: [{}],
+      colors: [],
     };
-
     this.handleDropdownChange = this.handleDropdownChange.bind(this);
     this.handleButton = this.handleButton.bind(this);
     this.handlePlotdata = this.handlePlotdata.bind(this);
-  }
-
-  handleError(error) {
-    if (error.response && error.response.status === 409) {
-      alert('Request conflicts');
-    } else if (error.response && error.response.status === 400) {
-      alert('Bad Request');
-    } else if (error.response && error.response.status === 404) {
-      alert('Not found');
-    } else if (error.response && error.response.status === 500) {
-      alert('Internal server error');
-    } else if (error.response && error.response.status === 403) {
-      alert('Forbidden');
-    }
+    this.handlePlotGraph = this.handlePlotGraph.bind(this);
   }
 
   async componentDidMount() {
     const url = 'http://192.168.0.194:5005/api/1.0/dashboard/devices';
     const response = await axios.get(url);
     const a = this.state.selectValue;
-    console.log(a);
-
-    console.log(response.data);
 
     this.setState({ sensorReadingOne: response.data, loading: true });
+    (error) => {
+      this.handleError(error);
+      return error;
+    };
   }
 
   fetchDevices = () => {
     fetch('http://192.168.0.194:5005/api/1.0/dashboard/devices')
       .then((response) => response.json())
       .then((devicelist) => {
-        if (devicelist.status === 204) {
-          alert('No content');
-        }
         this.setState({ sensorReadingOne: devicelist, loading: true });
-      },
-      (error) => {
-        this.handleError(error);
-        return error;
       });
   }
 
@@ -207,18 +217,10 @@ class Test extends React.Component {
 
   async handleDropdownChange(e) {
     try {
-      setInterval(async () => {
-        const selectValue = e.target.value;
-        this.setState({ selectValue });
-        console.log(this.state.selectValue);
-
-        const res = await axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/devices/${selectValue}/sensors/latest`);
-        const { data } = res;
-
-        console.log(data);
-
-        this.setState({ sensorReadingTwo: res.data.latestSensorData, loading: true });
-      }, 500);
+      const selectValue = e.target.value;
+      this.setState({ selectValue });
+      const res = await axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/devices/${selectValue}/sensors/latest/calculated`);
+      this.setState({ sensorReadingTwo: res.data.latestSensorData, loading: true });
     } catch (a) {
       console.log(a);
     }
@@ -229,297 +231,587 @@ class Test extends React.Component {
   }
 
   async handlePlotdata(e) {
-    this.state.Deviceid = [this.state.selectValue];
-    console.log(this.state.Deviceid);
-    const { Storesensor } = this.state;
-    Storesensor.push(this.state.addedProducts);
-    this.setState({ Storesensor });
-    Storesensor.map((ms) => {
-      console.log(ms);
-      this.state.Storesensor = ms;
-    });
-    const ress = await axios.all(this.state.Storesensor.map((u) => axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${u.substring(1, 5)}/readings?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`)));
+    this.setState({ loadingData: true }, async () => {
+      this.state.Deviceid = [this.state.selectValue];
+      const { Storesensor } = this.state;
+      Storesensor.push(this.state.addedProducts);
+      this.setState({ Storesensor });
+      Storesensor.map((ms) => {
+        this.state.Storesensor = ms;
+      });
+      let store = [];
+      Storesensor[0].map((value) => {
+        let unit = value.split(/(\s+)/);
+        store.push(unit.pop());
+      });
+      console.log(store);
 
-    const { data } = ress;
-    console.log(ress);
-    console.log(ress.data);
+      store.map((value) => {
+        if (value === 'Hz') {
+          console.log('Kiran');
+          this.state.isDataSplit = true;
+        } else {
+          this.state.isDataSplit = false;
+        }
+      });
+      console.log(this.state.isDataSplit);
+      if (this.state.isDataSplit) {
+        const result = await axios.all(this.state.Storesensor.map((u) => axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${u.substring(1, 5)}/readings?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`)));
+        this.setState({ loadingData: false });
+        const sensorData = result[0].data;
+        this.setState({ sensorData });
+        console.log(sensorData);
+        const timeStamp = sensorData.map((element) => element.timestamp.slice(0, 19));
+        console.log(timeStamp);
+        function getUnique(array) {
+          var uniqueArray = [];
 
-    for (let i = 0; i < ress.length; i++) {
-      i; // is the index
+          for (let i = 0; i < array.length; i++) {
+            if (uniqueArray.indexOf(array[i]) === -1) {
+              uniqueArray.push(array[i]);
+            }
+          }
+          return uniqueArray;
+        }
 
-      if (ress.length == 1) {
-        this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
-      } else if (ress.length == 2) {
-        this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
-        this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
-      } else if (ress.length == 3) {
-        this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
-        this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
-        this.setState({ sReadingOneTwo: ress[2].data, loading: true });
-      } else if (ress.length == 4) {
-        this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
-        this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
-        this.setState({ sReadingOneTwo: ress[2].data, loading: true });
-        this.setState({ sReadingOne: ress[3].data, loading: true });
-      } else if (ress.length == 5) {
-        this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
-        this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
-        this.setState({ sReadingOneTwo: ress[2].data, loading: true });
-        this.setState({ sReadingOne: ress[3].data, loading: true });
-        this.setState({ sReadingTwo: ress[4].data, loading: true });
-      } else if (ress.length == 6) {
-        this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
-        this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
-        this.setState({ sReadingOneTwo: ress[2].data, loading: true });
-        this.setState({ sReadingOne: ress[3].data, loading: true });
-        this.setState({ sReadingTwo: ress[4].data, loading: true });
-        this.setState({ sReadingThree: ress[5].data, loading: true });
-      } else if (ress.length == 7) {
-        this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
-        this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
-        this.setState({ sReadingOneTwo: ress[2].data, loading: true });
-        this.setState({ sReadingOne: ress[3].data, loading: true });
-        this.setState({ sReadingTwo: ress[4].data, loading: true });
-        this.setState({ sReadingThree: ress[5].data, loading: true });
-        this.setState({ sReadingFour: ress[6].data, loading: true });
-      } else if (ress.length == 8) {
-        this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
-        this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
-        this.setState({ sReadingOneTwo: ress[2].data, loading: true });
-        this.setState({ sReadingOne: ress[3].data, loading: true });
-        this.setState({ sReadingTwo: ress[4].data, loading: true });
-        this.setState({ sReadingThree: ress[5].data, loading: true });
-        this.setState({ sReadingFour: ress[6].data, loading: true });
-        this.setState({ sReadingFive: ress[7].data, loading: true });
-      } else if (ress.length == 9) {
-        this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
-        this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
-        this.setState({ sReadingOneTwo: ress[2].data, loading: true });
-        this.setState({ sReadingOne: ress[3].data, loading: true });
-        this.setState({ sReadingTwo: ress[4].data, loading: true });
-        this.setState({ sReadingThree: ress[5].data, loading: true });
-        this.setState({ sReadingFour: ress[6].data, loading: true });
-        this.setState({ sReadingFive: ress[7].data, loading: true });
-        this.setState({ sReadingSix: ress[8].data, loading: true });
-      } else if (ress.length == 10) {
-        this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
-        this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
-        this.setState({ sReadingOneTwo: ress[2].data, loading: true });
-        this.setState({ sReadingOne: ress[3].data, loading: true });
-        this.setState({ sReadingTwo: ress[4].data, loading: true });
-        this.setState({ sReadingThree: ress[5].data, loading: true });
-        this.setState({ sReadingFour: ress[6].data, loading: true });
-        this.setState({ sReadingFive: ress[7].data, loading: true });
-        this.setState({ sReadingSix: ress[8].data, loading: true });
-        this.setState({ sReadingSeven: ress[9].data, loading: true });
+        const uniqueTimeStamp = getUnique(timeStamp);
+        console.log(uniqueTimeStamp);
+
+        let valuesForTimeStamp = [];
+        for (let i = 0; i < uniqueTimeStamp.length; i++) {
+          valuesForTimeStamp[i] = sensorData.filter((element) => {
+            if (element.timestamp.slice(0, 19) === uniqueTimeStamp[i]) {
+              return element;
+            }
+          });
+        }
+        console.log(valuesForTimeStamp);
+        let amplitude = [];
+
+        valuesForTimeStamp.map((element, index) => {
+          amplitude[index] = element.map((data) => parseInt(data.value.slice(2, 4), 16));
+        });
+
+        let valuesForFrequency = [];
+        let frequencyData = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '0A', '0B', '0C', '0D', '0E', '0F', '10'];
+        for (let i = 0; i < frequencyData.length; i++) {
+          valuesForFrequency[i] = sensorData.filter((element) => {
+            let { value } = element;
+            if (value.slice(0, 2) === frequencyData[i]) {
+              return element;
+            }
+          });
+        }
+        console.log(valuesForFrequency[0]);
+
+        let uniqueValuesForFrequency = [];
+        for (let i = 0; i < frequencyData.length; i++) {
+          uniqueValuesForFrequency[i] = valuesForFrequency[i].map((element) => parseInt(element.value.slice(2, 4), 16));
+          uniqueValuesForFrequency[i] = getUnique(uniqueValuesForFrequency[i]);
+        }
+        console.log(uniqueValuesForFrequency);
+
+        let maxArrayLength = 0;
+
+        for (let i = 0; i < uniqueValuesForFrequency.length; i++) {
+          if (maxArrayLength < uniqueValuesForFrequency[i].length) {
+            maxArrayLength = uniqueValuesForFrequency[i].length;
+          }
+        }
+
+        console.log(maxArrayLength);
+
+        const uniqueFrequency = () => {
+          let value = [];
+          for (let i = 0; i < uniqueValuesForFrequency.length; i++) {
+            value[i] = uniqueValuesForFrequency[i].shift();
+          }
+          return value;
+        };
+
+        let element = [];
+        for (let k = 0; k < maxArrayLength; k++) {
+          element[k] = uniqueFrequency(k + 1);
+        }
+        console.log(element);
+
+        let dataSets = [{}];
+        let colors = [];
+        for (let i = 0; i < element.length; i++) {
+          let color = Math.floor((Math.random() * 1000000) + 1);
+          colors.push(`#${(`000000${color.toString(16)}`).slice(-6)}`);
+          try {
+            dataSets[i] = {
+              label: `Amplitude${i}`,
+              data: element[i],
+              backgroundColor: colors[i],
+
+            };
+          } catch (error) {
+            console.log(error);
+          }
+        }
+        console.log(dataSets);
+        // dataSets[1] = {
+        //     label: '2nd',
+        //     data: '2nd',
+        // }
+        console.log(dataSets);
+        this.setState({ Data: dataSets });
+        this.setState({ loadingData: false });
+        this.setState({ plotData: `${this.state.addedProducts} ${this.state.date} ` });
+      } else {
+        const ress = await axios.all(this.state.Storesensor.map((u) => axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${u.substring(1, 5)}/readings?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`)));
+        for (let i = 0; i < ress.length; i++) {
+          i;
+
+          if (ress.length == 1) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+          } else if (ress.length == 2) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+          } else if (ress.length == 3) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+            this.setState({ sReadingOneTwo: ress[2].data, loading: true });
+          } else if (ress.length == 4) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+            this.setState({ sReadingOneTwo: ress[2].data, loading: true });
+            this.setState({ sReadingOne: ress[3].data, loading: true });
+          } else if (ress.length == 5) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+            this.setState({ sReadingOneTwo: ress[2].data, loading: true });
+            this.setState({ sReadingOne: ress[3].data, loading: true });
+            this.setState({ sReadingTwo: ress[4].data, loading: true });
+          } else if (ress.length == 6) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+            this.setState({ sReadingOneTwo: ress[2].data, loading: true });
+            this.setState({ sReadingOne: ress[3].data, loading: true });
+            this.setState({ sReadingTwo: ress[4].data, loading: true });
+            this.setState({ sReadingThree: ress[5].data, loading: true });
+          } else if (ress.length == 7) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+            this.setState({ sReadingOneTwo: ress[2].data, loading: true });
+            this.setState({ sReadingOne: ress[3].data, loading: true });
+            this.setState({ sReadingTwo: ress[4].data, loading: true });
+            this.setState({ sReadingThree: ress[5].data, loading: true });
+            this.setState({ sReadingFour: ress[6].data, loading: true });
+          } else if (ress.length == 8) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+            this.setState({ sReadingOneTwo: ress[2].data, loading: true });
+            this.setState({ sReadingOne: ress[3].data, loading: true });
+            this.setState({ sReadingTwo: ress[4].data, loading: true });
+            this.setState({ sReadingThree: ress[5].data, loading: true });
+            this.setState({ sReadingFour: ress[6].data, loading: true });
+            this.setState({ sReadingFive: ress[7].data, loading: true });
+          } else if (ress.length == 9) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+            this.setState({ sReadingOneTwo: ress[2].data, loading: true });
+            this.setState({ sReadingOne: ress[3].data, loading: true });
+            this.setState({ sReadingTwo: ress[4].data, loading: true });
+            this.setState({ sReadingThree: ress[5].data, loading: true });
+            this.setState({ sReadingFour: ress[6].data, loading: true });
+            this.setState({ sReadingFive: ress[7].data, loading: true });
+            this.setState({ sReadingSix: ress[8].data, loading: true });
+          } else if (ress.length == 10) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+            this.setState({ sReadingOneTwo: ress[2].data, loading: true });
+            this.setState({ sReadingOne: ress[3].data, loading: true });
+            this.setState({ sReadingTwo: ress[4].data, loading: true });
+            this.setState({ sReadingThree: ress[5].data, loading: true });
+            this.setState({ sReadingFour: ress[6].data, loading: true });
+            this.setState({ sReadingFive: ress[7].data, loading: true });
+            this.setState({ sReadingSix: ress[8].data, loading: true });
+            this.setState({ sReadingSeven: ress[9].data, loading: true });
+          }
+        }
+
+        var converter = require('hex2dec');
+
+        const dec = converter.hexToDec('0xFA');
+
+        console.log(this.state.sensorReadingOneTwo);
+        console.log(this.state.sensorReadOneTwo);
+
+        const getdata1 = this.state.sensorReadingOneTwo;
+        const getdata2 = this.state.sensorReadOneTwo;
+        const getdata3 = this.state.sReadingOneTwo;
+        const getdata4 = this.state.sReadingOne;
+        const getdata5 = this.state.sReadingTwo;
+        const getdata6 = this.state.sReadingThree;
+        const getdata7 = this.state.sReadingFour;
+        const getdata8 = this.state.sReadingFive;
+        const getdata9 = this.state.sReadingSix;
+        const getdata10 = this.state.sReadingSeven;
+
+        const time = [];
+        const sid = [];
+        const deci = [];
+
+        const time1 = [];
+        const sid1 = [];
+        const deci1 = [];
+
+        const time2 = [];
+        const sid2 = [];
+        const deci2 = [];
+
+        const time3 = [];
+        const sid3 = [];
+        const deci3 = [];
+
+        const time4 = [];
+        const sid4 = [];
+        const deci4 = [];
+
+        const time5 = [];
+        const sid5 = [];
+        const deci5 = [];
+
+        const time6 = [];
+        const sid6 = [];
+        const deci6 = [];
+
+        const time7 = [];
+        const sid7 = [];
+        const deci7 = [];
+
+        const time8 = [];
+        const sid8 = [];
+        const deci8 = [];
+
+        const time9 = [];
+        const sid9 = [];
+        const deci9 = [];
+
+        getdata1.forEach((record) => {
+          time.push(`${record.timestamp.slice(record.timestamp.length - 14)}`);
+          sid.push(record.value);
+          deci.push(`${converter.hexToDec(record.value)}`);
+        });
+        getdata2.forEach((record) => {
+          time1.push(record.timestamp.slice(record.timestamp.length - 14));
+          sid1.push(record.value);
+          deci1.push(converter.hexToDec(record.value));
+        });
+        getdata3.forEach((record) => {
+          time2.push(record.timestamp.slice(record.timestamp.length - 14));
+          sid2.push(record.value);
+          deci2.push(converter.hexToDec(record.value));
+        });
+        getdata4.forEach((record) => {
+          time3.push(record.timestamp.slice(record.timestamp.length - 14));
+          sid3.push(record.value);
+          deci3.push(converter.hexToDec(record.value));
+        });
+        getdata5.forEach((record) => {
+          time4.push(record.timestamp.slice(record.timestamp.length - 14));
+          sid4.push(record.value);
+          deci4.push(converter.hexToDec(record.value));
+        });
+        getdata6.forEach((record) => {
+          time5.push(record.timestamp.slice(record.timestamp.length - 14));
+          sid5.push(record.value);
+          deci5.push(converter.hexToDec(record.value));
+        });
+        getdata7.forEach((record) => {
+          time6.push(record.timestamp.slice(record.timestamp.length - 14));
+          sid6.push(record.value);
+          deci6.push(converter.hexToDec(record.value));
+        });
+        getdata8.forEach((record) => {
+          time7.push(record.timestamp.slice(record.timestamp.length - 14));
+          sid7.push(record.value);
+          deci7.push(converter.hexToDec(record.value));
+        });
+        getdata9.forEach((record) => {
+          time8.push(record.timestamp.slice(record.timestamp.length - 14));
+          sid8.push(record.value);
+          deci8.push(converter.hexToDec(record.value));
+        });
+        getdata10.forEach((record) => {
+          time9.push(record.timestamp.slice(record.timestamp.length - 14));
+          sid9.push(record.value);
+          deci9.push(converter.hexToDec(record.value));
+        });
       }
+      this.setState({ loadingData: false });
+      this.setState({ plotData: ` ${this.state.addedProducts} ${this.state.date}` });
+    });
+    // }
+  }
 
-      var converter = require('hex2dec');
+  async handlePlotGraph(e) {
+    if (this.state.isDataSplit) {
+      console.log(this.state.dataSets);
+      this.setState({ plotGraph: `${this.state.addedProducts} ${this.state.date}` });
+    } else {
+      this.setState({ loadingGraph: true }, async () => {
+        this.state.Deviceid = [this.state.selectValue];
+        console.log(this.state.Deviceid);
+        console.log(this.state.selectXAxisData.substring(0, 4));
+        console.log(this.state.date);
+        console.log(this.state.startTime);
+        console.log(this.state.endTime);
+        const { Storesensor } = this.state;
+        Storesensor.push(this.state.addedProducts);
+        this.setState({ Storesensor });
+        Storesensor.map((ms) => {
+          this.state.Storesensor = ms;
+        });
+        const ress = await axios.all(this.state.Storesensor.map((u) => axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${u.substring(1, 5)}/readings?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`)));
+        const resss = await axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${this.state.selectXAxisData.substring(0, 4)}/readings?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`);
+        const ressss = await axios.get(`http://192.168.0.194:5005/api/1.0/dashboard/${this.state.Deviceid}/sensors/${this.state.selectYAxisData.substring(0, 4)}/readings?start=${this.state.date}T${this.state.startTime}:00&end=${this.state.date}T${this.state.endTime}:00`);
+        this.setState({
+          selectedXsensorData: resss.data,
+        });
+        this.setState({ selectedYsensorData: ressss.data });
+        for (let i = 0; i < ress.length; i++) {
+          i; // i is the index
 
-      let dec = converter.hexToDec('0xFA');
-      console.log(dec);
+          if (ress.length == 1) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+          } else if (ress.length == 2) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+          } else if (ress.length == 3) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+            this.setState({ sReadingOneTwo: ress[2].data, loading: true });
+          } else if (ress.length == 4) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+            this.setState({ sReadingOneTwo: ress[2].data, loading: true });
+            this.setState({ sReadingOne: ress[3].data, loading: true });
+          } else if (ress.length == 5) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+            this.setState({ sReadingOneTwo: ress[2].data, loading: true });
+            this.setState({ sReadingOne: ress[3].data, loading: true });
+            this.setState({ sReadingTwo: ress[4].data, loading: true });
+          } else if (ress.length == 6) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+            this.setState({ sReadingOneTwo: ress[2].data, loading: true });
+            this.setState({ sReadingOne: ress[3].data, loading: true });
+            this.setState({ sReadingTwo: ress[4].data, loading: true });
+            this.setState({ sReadingThree: ress[5].data, loading: true });
+          } else if (ress.length == 7) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+            this.setState({ sReadingOneTwo: ress[2].data, loading: true });
+            this.setState({ sReadingOne: ress[3].data, loading: true });
+            this.setState({ sReadingTwo: ress[4].data, loading: true });
+            this.setState({ sReadingThree: ress[5].data, loading: true });
+            this.setState({ sReadingFour: ress[6].data, loading: true });
+          } else if (ress.length == 8) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+            this.setState({ sReadingOneTwo: ress[2].data, loading: true });
+            this.setState({ sReadingOne: ress[3].data, loading: true });
+            this.setState({ sReadingTwo: ress[4].data, loading: true });
+            this.setState({ sReadingThree: ress[5].data, loading: true });
+            this.setState({ sReadingFour: ress[6].data, loading: true });
+            this.setState({ sReadingFive: ress[7].data, loading: true });
+          } else if (ress.length == 9) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+            this.setState({ sReadingOneTwo: ress[2].data, loading: true });
+            this.setState({ sReadingOne: ress[3].data, loading: true });
+            this.setState({ sReadingTwo: ress[4].data, loading: true });
+            this.setState({ sReadingThree: ress[5].data, loading: true });
+            this.setState({ sReadingFour: ress[6].data, loading: true });
+            this.setState({ sReadingFive: ress[7].data, loading: true });
+            this.setState({ sReadingSix: ress[8].data, loading: true });
+          } else if (ress.length == 10) {
+            this.setState({ sensorReadingOneTwo: ress[0].data, loading: true });
+            this.setState({ sensorReadOneTwo: ress[1].data, loading: true });
+            this.setState({ sReadingOneTwo: ress[2].data, loading: true });
+            this.setState({ sReadingOne: ress[3].data, loading: true });
+            this.setState({ sReadingTwo: ress[4].data, loading: true });
+            this.setState({ sReadingThree: ress[5].data, loading: true });
+            this.setState({ sReadingFour: ress[6].data, loading: true });
+            this.setState({ sReadingFive: ress[7].data, loading: true });
+            this.setState({ sReadingSix: ress[8].data, loading: true });
+            this.setState({ sReadingSeven: ress[9].data, loading: true });
+          }
 
-      console.log(ress.length);
+          var converter = require('hex2dec');
+          const dec = converter.hexToDec('0xFA');
 
-      const getdata1 = this.state.sensorReadingOneTwo;
-      const getdata2 = this.state.sensorReadOneTwo;
-      const getdata3 = this.state.sReadingOneTwo;
-      const getdata4 = this.state.sReadingOne;
-      const getdata5 = this.state.sReadingTwo;
-      const getdata6 = this.state.sReadingThree;
-      const getdata7 = this.state.sReadingFour;
-      const getdata8 = this.state.sReadingFive;
-      const getdata9 = this.state.sReadingSix;
-      const getdata10 = this.state.sReadingSeven;
+          const getdata1 = this.state.sensorReadingOneTwo;
+          const getdata2 = this.state.sensorReadOneTwo;
+          const getdata3 = this.state.sReadingOneTwo;
+          const getdata4 = this.state.sReadingOne;
+          const getdata5 = this.state.sReadingTwo;
+          const getdata6 = this.state.sReadingThree;
+          const getdata7 = this.state.sReadingFour;
+          const getdata8 = this.state.sReadingFive;
+          const getdata9 = this.state.sReadingSix;
+          const getdata10 = this.state.sReadingSeven;
+          const getdata11 = this.state.selectedXsensorData;
+          const getdata12 = this.state.selectedYsensorData;
 
-      const time = [];
-      const sid = [];
-      const deci = [];
+          const time = [];
+          const sid = [];
+          const deci = [];
 
-      const time1 = [];
-      const sid1 = [];
-      const deci1 = [];
+          const time1 = [];
+          const sid1 = [];
+          const deci1 = [];
 
-      const time2 = [];
-      const sid2 = [];
-      const deci2 = [];
+          const time2 = [];
+          const sid2 = [];
+          const deci2 = [];
 
-      const time3 = [];
-      const deci3 = [];
+          const time3 = [];
+          const sid3 = [];
+          const deci3 = [];
 
-      const time4 = [];
-      const deci4 = [];
+          const time4 = [];
+          const sid4 = [];
+          const deci4 = [];
 
-      const time5 = [];
-      const deci5 = [];
+          const time5 = [];
+          const sid5 = [];
+          const deci5 = [];
 
-      const time6 = [];
-      const deci6 = [];
+          const time6 = [];
+          const sid6 = [];
+          const deci6 = [];
 
-      const time7 = [];
-      const deci7 = [];
+          const time7 = [];
+          const sid7 = [];
+          const deci7 = [];
 
-      const time8 = [];
-      const deci8 = [];
+          const time8 = [];
+          const sid8 = [];
+          const deci8 = [];
 
-      const time9 = [];
-      const deci9 = [];
+          const time9 = [];
+          const sid9 = [];
+          const deci9 = [];
 
-      getdata1.forEach((record) => {
-        time.push(`${record.timestamp.slice(record.timestamp.length - 14)}`);
-        sid.push(record.value);
-        deci.push(`${converter.hexToDec(record.value)}`);
-      });
-      getdata2.forEach((record) => {
-        time1.push(record.timestamp.slice(record.timestamp.length - 14));
-        sid1.push(record.value);
-        deci1.push(converter.hexToDec(record.value));
-      });
-      getdata3.forEach((record) => {
-        time2.push(record.timestamp.slice(record.timestamp.length - 14));
-        sid2.push(record.value);
-        deci2.push(converter.hexToDec(record.value));
-      });
-      getdata4.forEach((record) => {
-        time3.push(record.timestamp.slice(record.timestamp.length - 14));
-        sid.push(record.value);
-        deci3.push(converter.hexToDec(record.value));
-      });
-      getdata5.forEach((record) => {
-        time4.push(record.timestamp.slice(record.timestamp.length - 14));
-        sid.push(record.value);
-        deci4.push(converter.hexToDec(record.value));
-      });
-      getdata6.forEach((record) => {
-        time5.push(record.timestamp.slice(record.timestamp.length - 14));
-        sid.push(record.value);
-        deci5.push(converter.hexToDec(record.value));
-      });
-      getdata7.forEach((record) => {
-        time6.push(record.timestamp.slice(record.timestamp.length - 14));
-        sid.push(record.value);
-        deci6.push(converter.hexToDec(record.value));
-      });
-      getdata8.forEach((record) => {
-        time7.push(record.timestamp.slice(record.timestamp.length - 14));
-        sid.push(record.value);
-        deci7.push(converter.hexToDec(record.value));
-      });
-      getdata9.forEach((record) => {
-        time8.push(record.timestamp.slice(record.timestamp.length - 14));
-        sid.push(record.value);
-        deci8.push(converter.hexToDec(record.value));
-      });
-      getdata10.forEach((record) => {
-        time9.push(record.timestamp.slice(record.timestamp.length - 14));
-        sid.push(record.value);
-        deci9.push(converter.hexToDec(record.value));
-      });
+          const time10 = [];
+          const sid10 = [];
+          const deci10 = [];
 
-      this.state.result = time, time1, time2, time3, time4, time5, time6, time7, time8, time9;
-      console.log(this.state.result);
-      console.log(deci == time);
-      this.setState({
-        Data: {
+          const time11 = [];
+          const sid11 = [];
+          const deci11 = [];
 
-          labels: this.state.result,
+          const time12 = [];
 
-          scales: {
-            yAxes: [{
+          getdata1.forEach((record) => {
+            time.push(record.timestamp.slice(record.timestamp.length - 14));
+            sid.push(record.value);
+            deci.push(converter.hexToDec(record.value));
+          });
+          getdata2.forEach((record) => {
+            time1.push(record.timestamp.slice(record.timestamp.length - 14));
+            sid1.push(record.value);
+            deci1.push(converter.hexToDec(record.value));
+          });
+          getdata3.forEach((record) => {
+            time2.push(record.timestamp.slice(record.timestamp.length - 14));
+            sid2.push(record.value);
+            deci2.push(converter.hexToDec(record.value));
+          });
+          getdata4.forEach((record) => {
+            time3.push(record.timestamp.slice(record.timestamp.length - 14));
+            sid3.push(record.value);
+            deci3.push(converter.hexToDec(record.value));
+          });
+          getdata5.forEach((record) => {
+            time4.push(record.timestamp.slice(record.timestamp.length - 14));
+            sid4.push(record.value);
+            deci4.push(converter.hexToDec(record.value));
+          });
+          getdata6.forEach((record) => {
+            time5.push(record.timestamp.slice(record.timestamp.length - 14));
+            sid5.push(record.value);
+            deci5.push(converter.hexToDec(record.value));
+          });
+          getdata7.forEach((record) => {
+            time6.push(record.timestamp.slice(record.timestamp.length - 14));
+            sid6.push(record.value);
+            deci6.push(converter.hexToDec(record.value));
+          });
+          getdata8.forEach((record) => {
+            time7.push(record.timestamp.slice(record.timestamp.length - 14));
+            sid7.push(record.value);
+            deci7.push(converter.hexToDec(record.value));
+          });
+          getdata9.forEach((record) => {
+            time8.push(record.timestamp.slice(record.timestamp.length - 14));
+            sid8.push(record.value);
+            deci8.push(converter.hexToDec(record.value));
+          });
+          getdata10.forEach((record) => {
+            time9.push(record.timestamp.slice(record.timestamp.length - 14));
+            sid9.push(record.value);
+            deci9.push(converter.hexToDec(record.value));
+          });
 
-              display: true,
-            }],
-          },
+          getdata11.forEach((record) => {
+            time10.push(record.timestamp.slice(record.timestamp.length - 14));
+            sid10.push(record.value);
+            deci10.push(converter.hexToDec(record.value));
+          });
+          getdata12.forEach((record) => {
+            time11.push(record.timestamp.slice(record.timestamp.length - 14));
+            sid11.push(record.value);
+            deci11.push(converter.hexToDec(record.value));
+          });
+          getdata11.forEach((record) => {
+            time12.push(record.timestamp.slice(record.timestamp.length - 14));
+          });
 
-          datasets: [
+          this.state.result = time10.map((d) => d.slice(7, 9));
+          this.state.result2 = time12.map((d) => d);
+          this.state.xAxis = deci10;
+          console.log(this.state.xAxis);
+          this.state.yAxis = deci11;
+          this.state.y1Axis = time12;
+          this.state.colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#cddc39', '#4caf50'];
+          this.setState({
+            Data: {
+              labels: this.state.y1Axis.map((it) => it),
+              datasets: [
+                {
+                  label: `X Axis:- ${this.state.selectXAxisData.slice(4)} `,
+                  data: this.state.xAxis.map((it) => it),
+                  backgroundColor: 'red',
+                  width: '50%',
+                  yAxisID: 'y',
+                },
 
-            {
-              label: `Monitoring Value:- ${this.state.addedProducts[0]}`,
-
-              data: deci,
-
-              backgroundColor: 'red',
-
-              width: '50%',
+                {
+                  label: `Y Axis:- ${this.state.selectYAxisData.slice(4)} `,
+                  data: this.state.yAxis.map((it) => it),
+                  backgroundColor: 'blue',
+                  width: '50%',
+                  yAxisID: 'y1',
+                },
+              ],
             },
-
-            {
-              label: `Monitoring Value:- ${this.state.addedProducts[1]}`,
-              data: deci1,
-              backgroundColor: 'blue',
-              width: '50%',
-
-            },
-            {
-              label: `Monitoring Value:- ${this.state.addedProducts[2]}`,
-              data: deci2,
-              backgroundColor: 'purple',
-              width: '50%',
-
-            },
-            {
-              label: `Monitoring Value:- ${this.state.addedProducts[3]}`,
-              data: deci3,
-              backgroundColor: 'green',
-              width: '50%',
-
-            },
-            {
-              label: `Monitoring Value:- ${this.state.addedProducts[4]}`,
-              data: deci4,
-              backgroundColor: 'orange',
-              width: '50%',
-
-            },
-            {
-              label: `Monitoring Value:- ${this.state.addedProducts[5]}`,
-              data: deci5,
-              backgroundColor: 'skyblue',
-              width: '50%',
-
-            },
-            {
-              label: `Monitoring Value:- ${this.state.addedProducts[6]}`,
-              data: deci6,
-              backgroundColor: 'pink',
-              width: '50%',
-
-            },
-            {
-              label: `Monitoring Value:- ${this.state.addedProducts[7]}`,
-              data: deci7,
-              backgroundColor: 'yellow',
-              width: '50%',
-
-            },
-            {
-              label: `Monitoring Value:- ${this.state.addedProducts[8]}`,
-              data: deci8,
-              backgroundColor: 'gray',
-
-              width: '50%',
-            },
-            {
-              label: `Monitoring Value:- ${this.state.addedProducts[9]}`,
-              data: deci9,
-              backgroundColor: 'red',
-              width: '50%',
-
-            },
-
-          ],
-
-        },
+          });
+        }
+        this.setState({ loadingGraph: false });
+        this.setState({ plotGraph: ` ${this.state.addedProducts} ${this.state.date}` });
       });
     }
-
-    this.setState({ plotData: ` ${this.state.addedProducts} ${this.state.date}` });
   }
 
   handleButton(e) {
     this.setState({ selectButton: `${this.state.date}             ST        ${this.state.startTime}            ET         ${this.state.endTime}` });
-
-    console.log(this.state.selectButton);
   }
 
   onAddingItem = (item) => {
@@ -540,20 +832,33 @@ class Test extends React.Component {
     this.setState({ [e.target.name]: e.target.value });
   }
 
+  onDropDownChange = (e) => {
+    this.setState({ selectXAxisData: e.target.value });
+  }
+
+  onDropDownChangeTwo = (e) => {
+    this.setState({ selectYAxisData: e.target.value });
+  }
+
   onSubmit = (e) => {
     e.preventDefault();
     if (this.validate()) {
-      console.log(this.state.date);
-      console.log(this.state.startTime);
-      console.log(this.state.endTime);
+
     }
   }
 
   onSubmitTwo = (e) => {
     e.preventDefault();
+    // this.handlePlotdata();
     if (this.validate()) {
-      console.log(this.state.selectxaxis);
-      console.log(this.state.selectyaxis);
+      // comment
+    }
+  }
+
+  onSubmitThree = (e) => {
+    e.preventDefault();
+    this.handlePlotGraph();
+    if (this.validate()) {
     }
   }
 
@@ -576,14 +881,14 @@ class Test extends React.Component {
       errors.endTime = 'Please select end time';
     }
 
-    if (!this.state.selectxaxis) {
+    if (!this.state.selectXAxisData) {
       isValid = false;
-      errors.selectxaxis = 'Please select X axis data';
+      errors.selectXAxisData = 'Please select X axis data';
     }
 
-    if (!this.state.selectyaxis) {
+    if (!this.state.selectYAxisData) {
       isValid = false;
-      errors.selectyaxis = 'Please select Y axis data';
+      errors.selectYAxisData = 'Please select Y axis data';
     }
 
     this.setState({
@@ -593,9 +898,26 @@ class Test extends React.Component {
     return isValid;
   }
 
+  handleError(error) {
+    if (error.response && error.response.status === 409) {
+      alert('Request conflicts');
+    } else if (error.response && error.response.status === 400) {
+      alert('Bad Request');
+    } else if (error.response && error.response.status === 404) {
+      alert('Data Not found');
+    } else if (error.response && error.response.status === 500) {
+      alert('Internal server error');
+    } else if (error.response && error.response.status === 403) {
+      alert('Request Forbidden');
+    }
+  }
+
   render() {
     const { selectValue } = this.state;
-    const rowss = [];
+    const { loadingData } = this.state;
+    const { loadingGraph } = this.state;
+
+    const frequency = ['100', '200', '300', '400', '500', '600', '700', '800', '900', '1000', '1100', '1200', '1300', '1400', '1500', '1600'];
 
     let txt4;
     txt4 = this.state.date;
@@ -612,29 +934,8 @@ class Test extends React.Component {
     let txt9;
     txt9 = this.state.sensorId;
 
-    let txt10;
-
-    const columns = [
-
-      { field: 'id', headerName: 'ID', width: 250 },
-      { field: 'sensorId', headerName: 'Sensor Id', width: 170 },
-      { field: 'timestamp', headerName: 'Time Stamp', width: 250 },
-      { field: 'value', headerName: 'Value', width: 170 },
-
-    ];
-
-    // for paper grid
-    const row = [];
-    this.state.sensorReadingTwo.map((it) => {
-      row.push({
-        id: it.id,
-        timestamp: it.timestamp,
-        rawValue: it.rawValue,
-        unit: it.unit,
-        name: it.name,
-
-      });
-    });
+    const rows = [];
+    let columns = [];
 
     const values = {
       someDate: '2017-08-07',
@@ -644,22 +945,167 @@ class Test extends React.Component {
 
     const { date, startTime, endTime } = this.state;
 
+    // start data grid table code
+
+    if (this.state.isDataSplit) {
+      columns = [
+        {
+          field: 'sensorId', headerName: 'Id', width: 100,
+        },
+        {
+          field: 'timestamp', headerName: 'Timestamp', width: 300,
+        },
+        {
+          field: 'frequency', headerName: 'Frequency', width: 200,
+        },
+        {
+          field: 'amplitude', headerName: 'Amplitude', width: 200,
+        },
+      ];
+      if (this.state.sensorData !== null) {
+        this.state.sensorData?.map((it) => {
+          rows.push(
+            {
+              id: uuid(),
+              sensorId: it.sensorId,
+              timestamp: it.timestamp,
+              // eslint-disable-next-line radix
+              frequency: (parseInt(it.value.slice(0, 2), 16) * 100),
+              amplitude: parseInt(it.value.slice(2, 4), 16),
+            },
+          );
+        });
+      }
+    } else {
+      columns = [
+        {
+          field: 'sensorId', headerName: 'Id', width: 200,
+        },
+        {
+          field: 'timestamp', headerName: 'Timestamp', width: 400,
+        },
+        {
+          field: 'value', headerName: 'Value', width: 400,
+        },
+      ];
+
+      this.state.sensorReadingOneTwo.map((it) => {
+        rows.push(
+          {
+            id: uuid(),
+            sensorId: it.sensorId,
+            timestamp: it.timestamp,
+            value: this.state.converterhd.hexToDec(it.value),
+          },
+        );
+      });
+
+      this.state.sensorReadOneTwo.map((it) => {
+        rows.push(
+          {
+            id: uuid(),
+            sensorId: it.sensorId,
+            timestamp: it.timestamp,
+            value: this.state.converterhd.hexToDec(it.value),
+          },
+        );
+      });
+
+      this.state.sReadingOneTwo.map((it) => {
+        rows.push(
+          {
+            id: uuid(),
+            sensorId: it.sensorId,
+            timestamp: it.timestamp,
+            value: this.state.converterhd.hexToDec(it.value),
+          },
+        );
+      });
+
+      this.state.sReadingTwo.map((it) => {
+        rows.push(
+          {
+            id: uuid(),
+            sensorId: it.sensorId,
+            timestamp: it.timestamp,
+            value: this.state.converterhd.hexToDec(it.value),
+          },
+        );
+      });
+
+      this.state.sReadingThree.map((it) => {
+        rows.push(
+          {
+            id: uuid(),
+            sensorId: it.sensorId,
+            timestamp: it.timestamp,
+            value: this.state.converterhd.hexToDec(it.value),
+          },
+        );
+      });
+
+      this.state.sReadingFour.map((it) => {
+        rows.push(
+          {
+            id: uuid(),
+            sensorId: it.sensorId,
+            timestamp: it.timestamp,
+            value: this.state.converterhd.hexToDec(it.value),
+          },
+        );
+      });
+
+      this.state.sReadingFive.map((it) => {
+        rows.push(
+          {
+            id: uuid(),
+            sensorId: it.sensorId,
+            timestamp: it.timestamp,
+            value: this.state.converterhd.hexToDec(it.value),
+          },
+        );
+      });
+
+      this.state.sReadingSix.map((it) => {
+        rows.push(
+          {
+            id: uuid(),
+            sensorId: it.sensorId,
+            timestamp: it.timestamp,
+            value: this.state.converterhd.hexToDec(it.value),
+          },
+        );
+      });
+
+      this.state.sReadingSeven.map((it) => {
+        rows.push(
+          {
+            id: uuid(),
+            sensorId: it.sensorId,
+            timestamp: it.timestamp,
+            value: this.state.converterhd.hexToDec(it.value),
+          },
+        );
+      });
+    }
+    console.log(rows);
+    // end data grid table code
+
     return (
 
-      <div style={{ flexGrow: 4, paddingLeft: '2%' }}>
-
-        <div style={{ paddingBottom: '0%', marginTop: '7%' }}>
-          <Typography variant="h4" noWrap component="div">
-            Equipment-Wise Raw & Calculated Dashboard
-          </Typography>
-        </div>
+      <div style={{ marginTop: '8%', marginLeft: '5%' }}>
 
         <div>
-          <form>
+          <Typography variant="h4" noWrap component="div">
+            Equipment-Wise Calculated Dashboard
+          </Typography>
+        </div>
+        <div>
+          <form style={{ marginTop: '2%' }}>
             <div className="form-group col-4">
-              <label>Select Equipment</label>
+              <label htmlFor="device">Select Equipment</label>
 
-              <select style={{ width: 300, height: 37 }} onChange={this.handleDropdownChange} onClick={this.fetchDevices}>
+              <select style={{ width: 300, height: 37 }} onChange={this.handleDropdownChange} onClick={this.fetchDevices} id="device">
                 <option value="" />
                 {this.state.sensorReadingOne.map((fid, i) => <option style={{ width: 300, height: 37 }} key={i} value={fid.id}>{fid.deviceName}</option>)}
               </select>
@@ -671,8 +1117,7 @@ class Test extends React.Component {
         {' '}
 
         <div
-          key={row.id}
-          className="container px-3 py-3"
+          key={rows.id}
           style={{
             display: 'flex',
             flexWrap: 'wrap',
@@ -682,94 +1127,114 @@ class Test extends React.Component {
         >
 
           {this.state.sensorReadingTwo.map((readings, i) => (
-            <div
-              key={readings.id}
-              style={{
-                display: 'flex',
-                paddingRight: '0%',
-                flexWrap: 'wrap',
-              }}
-            >
-              <Grid
-                container
-                className={useStyles.root}
-                spacing={3}
-                item
-                xs={12}
-              >
-                <Grid item xs={12}>
-                  <Grid container justify="center" spacing={3}>
-                    {[0].map((value) => (
-                      <Grid key={value} item>
-                        <Paper
-                          className={useStyles.paper}
-                          style={{
-                            backgroundColor: '#43a047',
-                            height: 110,
-                            width: 170,
-                            boxShadow: '0px 10px 20px 1px',
-                            borderRadius: '12px',
-                            margin: '8px',
-                            overflow: 'hidden',
-                          }}
-                        >
-                          <div className="checkbox checkbox-circle checkbox-color-scheme">
-                            <label className="checkbox-checked">
-                              <input
-                                type="checkbox"
-                                style={{ width: 30, height: 20 }}
 
-                                value={`${readings.id + readings.name}`}
-                                checked={this.state.sensorReadingTwo[i].isAdded}
-                                onChange={this.onAddingItem}
-                              />
+            (() => {
+              if (readings.id.startsWith('R', 0)) {
+                return <h1> </h1>;
+              }
+              return (
 
-                            </label>
-                          </div>
-
-                          <Typography align="center" className={useStyles.text} noWrap>
-                            <Box
-                              fontWeight="fontWeightBold "
-                              className={useStyles.text}
+                <div
+                  key={readings.id}
+                  style={{
+                    display: 'flex',
+                    marginTop: '1%',
+                    marginLeft: '1%',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <Grid
+                    container
+                    className={useStyles.root}
+                    spacing={3}
+                    item
+                    xs={12}
+                  >
+                    <Grid item xs={12}>
+                      <Grid container justify="center" spacing={3}>
+                        {[0].map((value) => (
+                          <Grid key={value} item>
+                            <Paper
+                              className={useStyles.paper}
                               style={{
-                                color: 'white',
-                                padding: '0px',
-
-                                fontWeight: 'fontWeightBold',
+                                backgroundColor: Math.round(readings.rawValue) >= readings.max ? 'red' : 'green',
+                                height: 100,
+                                width: 170,
+                                boxShadow: '0px 10px 20px 1px',
+                                borderRadius: '12px',
+                                margin: '8px',
+                                overflow: 'hidden',
                               }}
                             >
+                              <div className="checkbox checkbox-circle checkbox-color-scheme">
+                                <label className="checkbox-checked">
+                                  <input
+                                    type="checkbox"
+                                    style={{ width: 30, height: 20 }}
 
-                              <div key={readings.id}>
-                                <h6>
+                                    value={`${`${readings.id + readings.name} ${readings.unit}`}`}
+                                    checked={this.state.sensorReadingTwo[i].isAdded}
+                                    onChange={this.onAddingItem}
+                                  />
 
-                                  {readings.id}
-                                </h6>
-                                <h6>
-
-                                  {readings.name}
-                                </h6>
-                                <h6>
-
-                                  {readings.rawValue}
-                                </h6>
+                                </label>
                               </div>
-                            </Box>
-                          </Typography>
-                        </Paper>
+
+                              <Typography align="center" className={useStyles.text} noWrap>
+                                <Box
+                                  fontWeight="fontWeightBold "
+                                  className={useStyles.text}
+                                  style={{
+                                    color: 'white',
+                                    padding: '0px',
+                                    fontWeight: 'fontWeightBold',
+                                  }}
+                                >
+
+                                  {(() => {
+                                    if (readings.id.startsWith('R', 0)) {
+                                      return <h1> </h1>;
+                                    }
+                                    return (
+
+                                      <div key={readings.id}>
+
+                                        <b>
+                                          {readings.name}
+                                        </b>
+
+                                        <br />
+
+                                        <b>
+                                          {readings.rawValue}
+                                        </b>
+
+                                        <h6>
+                                          {readings.unit}
+                                        </h6>
+                                      </div>
+                                    );
+                                  })()}
+
+                                </Box>
+                              </Typography>
+                            </Paper>
+                          </Grid>
+                        ))}
                       </Grid>
-                    ))}
+                    </Grid>
                   </Grid>
-                </Grid>
-              </Grid>
-            </div>
+                </div>
+              );
+            })()
 
           ))}
 
         </div>
 
-        <div style={{ paddingTop: '' }}>
-          <form style={{ marginLeft: '2%' }} onSubmit={this.onSubmit}>
-            <div className="form-row">
+        <div>
+          <form style={{ marginLeft: '1%', marginTop: '2%' }} onSubmit={this.onSubmit}>
+            <div className="form-group row">
 
               <div className="form-group col">
                 <TextField name="date" label="Date" id="time" InputLabelProps={{ shrink: true, required: true }} type="date" onChange={this.onChange} value={date} defaultValue={values.someDate} />
@@ -779,77 +1244,151 @@ class Test extends React.Component {
               </div>
 
               <div className="form-group col">
-                <TextField name="startTime" id="time" label="Start Time" type="time" onChange={this.onChange} value={startTime} defaultValue="12:30" InputLabelProps={{ shrink: true }} inputProps={{ step: 300 }} style={{ paddingLeft: '5%' }} />
+                <TextField name="startTime" id="time" label="Start Time" type="time" onChange={this.onChange} value={startTime} defaultValue="12:30" InputLabelProps={{ shrink: true }} inputProps={{ step: 300 }} />
                 <div className="text-danger">
                   {this.state.errors.startTime}
                 </div>
               </div>
 
               <div className="form-group col">
-                <TextField name="endTime" id="time" label="End Time " type="time" onChange={this.onChange} value={endTime} defaultValue="15:30" InputLabelProps={{ shrink: true }} inputProps={{ step: 300 }} style={{ paddingLeft: '5%', paddingRight: '5%' }} />
+                <TextField name="endTime" id="time" label="End Time " type="time" onChange={this.onChange} value={endTime} defaultValue="15:30" InputLabelProps={{ shrink: true }} inputProps={{ step: 300 }} />
                 <div className="text-danger">
                   {this.state.errors.endTime}
                 </div>
               </div>
 
               <div className="form-group col">
-                <Button type="submit" Concat={this.state.date} variant="contained" color="primary" onClick={this.handleButton}>SetDateRange</Button>
-              </div>
-              <div className="form-group col">
-                <ReactHTMLTableToExcel
-                  className="btn btn-primary btn-sl active"
-                  table="emp-table"
-                  filename="Equipment's Data File"
-                  sheet="Sheet"
-                  buttonText="Export To Excel"
-                />
-
+                <Button type="submit" variant="contained" color="primary" onClick={this.handleButton}>SetDateRange</Button>
               </div>
 
             </div>
           </form>
         </div>
 
-        <div style={{ display: 'flex', paddingTop: '5%', margin: '10px' }}>
-          <form style={{ paddingLeft: '10px', paddingRight: '20px' }} onSubmit={this.onSubmitTwo}>
-            <lable><h5><spam style={{ paddingLeft: '0%' }}>Select X and Y Axis Coordinates:-</spam></h5></lable>
+        <div className="form-group col-4">
+          <form onSubmit={this.onSubmitTwo}>
+            <Button type="submit" variant="contained" color="primary" onClick={this.handlePlotdata} style={{ marginTop: '5%' }}>
+              Plot Data
+            </Button>
+            {loadingData ? <LoadingSpinner /> : <h5 />}
+            {
+              this.state.isDataSplit ? <></> : (
+                <div style={{ marginTop: '5%' }}>
+                  <lable><h5><span>Select X and Y Axis Coordinates:-</span></h5></lable>
+                  <lable>
+                    <h6>
+                      <span>
+                        Select X axis Data:
+                        {this.state.selectButton}
+                      </span>
+                    </h6>
+                  </lable>
 
-            <lable><h6><spam style={{ paddingLeft: '5%' }}>Select X axis Coordinates:</spam></h6></lable>
+                  <select
+                    name="selectXAxisData"
+                    type="text"
+                    className={`form-control
+                ${this.state.errors.selectXAxisData ? 'is-invalid' : ''}`}
+                    value={this.state.selectXAxisData}
+                    onChange={this.onDropDownChange}
+                  >
+                    <option value="" />
+                    {this.state.addedProducts.map((index, i) => (
 
-            <select name="selectxaxis " type="text" className="form-control" onChange={this.onChange}>
+                      <option key={i + 1} value={this.state.addedProducts[i].substring(1, 100)}>{this.state.addedProducts[i].substring(5, 100)}</option>
+                    ))}
+                  </select>
+                  <div className="text-danger">
+                    {this.state.errors.selectXAxisData}
+                  </div>
 
-              <option>{this.state.selectButton}</option>
-              <div className="text-danger">
-                {this.state.errors.selectxaxis}
-              </div>
+                  <div style={{ marginTop: '5%' }}>
+                    <lable><h6><span>Select Y axis data:</span></h6></lable>
 
-            </select>
+                    <select
+                      name="selectYAxisData"
+                      type="text"
+                      className={`form-control
+                ${this.state.errors.selectYAxisData ? 'is-invalid' : ''}`}
+                      value={this.state.selectYAxisData}
+                      onChange={this.onDropDownChangeTwo}
+                    >
+                      <option value="" />
+                      {this.state.addedProducts.map((index, i) => (
 
-            <lable><h6><spam style={{ paddingLeft: '5%' }}>Select Y axis Coordinates:</spam></h6></lable>
+                        <option key={i + 1} value={this.state.addedProducts[i].substring(1, 100)}>{this.state.addedProducts[i].substring(5, 100)}</option>
+                      ))}
+                    </select>
+                    <div className="text-danger">
+                      {this.state.errors.selectYAxisData}
+                    </div>
 
-            <select name="selectyaxis " type="text" className="form-control" onChange={this.onChange}>
-              {this.state.addedProducts.map((index, i) => (
+                  </div>
+                </div>
+              )
+            }
 
-                <option key={i + 1} value={this.state.addedProducts[i].substring(1, 1000)}>{this.state.addedProducts[i].substring(1, 5)}</option>
+          </form>
+        </div>
 
-              ))}
-
-              <div className="text-danger">
-                {this.state.errors.selectyaxis}
-              </div>
-
-            </select>
-            <Button type="submit" variant="contained" color="primary" onClick={this.handlePlotdata} style={{ paddingLeft: '15px', margin: '3px' }}>PlotData</Button>
+        <div className="form-group row-4">
+          <form onSubmit={this.onSubmitThree}>
+            <Button type="submit" variant="contained" color="primary" style={{ marginLeft: '1%' }} onClick={this.handlePlotGraph}>Plot Graph</Button>
+            {loadingGraph ? <LoadingSpinner /> : <h5 />}
           </form>
         </div>
 
         {(() => {
-          if (this.state.plotData === '') {
+          if (this.state.plotGraph === '') {
             return <h1> </h1>;
           }
+          if (this.state.isDataSplit) {
+            return (
 
+              <div className="col-md-12 col-sm-12  redemption-container pd-30-0 bg-gray">
+                <h3 className="roboto paragraph mgb-60">Live Sensor Monitoring</h3>
+                <div className="row pd-0-30">
+                  <div className="col-md-11  default-shadow bg-white pd-30-0 border-radius-10 align-center">
+
+                    <Scatter
+                      data={{
+                        labels: frequency,
+                        datasets: this.state.Data,
+                      }}
+                      width={200}
+                      height={500}
+                      options={{
+                        plugins: {
+                          legend: {
+                            display: false,
+                          },
+                        },
+                        maintainAspectRatio: false,
+                        scales: {
+                          x: {
+                            title: {
+                              display: true,
+                              text: ' Frequency',
+                            },
+                          },
+                          y: {
+                            beginAtZero: true,
+                            title: {
+                              display: true,
+                              text: ' Amplitude',
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+
+                </div>
+              </div>
+
+            );
+          }
           return (
-
             <div className="col-md-12 col-sm-12  redemption-container pd-30-0 bg-gray">
               <h3 className="roboto paragraph mgb-60">Live Sensor Monitoring</h3>
               <div className="row pd-0-30">
@@ -858,31 +1397,47 @@ class Test extends React.Component {
                   <Line
                     data={this.state.Data}
                     options={{
+                      responsive: true,
+                      interaction: {
+                        mode: 'index',
+                        intersect: false,
+                      },
+                      stacked: false,
+                      plugins: {
+                        title: {
+                          display: true,
+                          text: 'Selected sensors monitoring chart',
+                        },
+                      },
                       scales: {
-                        yAxes: [{
-                          scaleLabel: {
-                            update: false,
+                        y: {
+                          type: 'linear',
+                          display: true,
+                          position: 'left',
+                          beginAtZero: true,
+                          title: {
                             display: true,
-                            labelString: 'probability',
+                            text: ` ${this.state.selectXAxisData.slice(4)}`,
                           },
-                        }],
+
+                        },
+                        y1: {
+                          type: 'linear',
+                          display: true,
+                          position: 'right',
+                          beginAtZero: true,
+                          title: {
+                            display: true,
+                            text: ` ${this.state.selectYAxisData.slice(4)}`,
+                          },
+                        },
                       },
                       animation: {
                         duration: 0,
                       },
-                      title: {
-                        text: 'Total Check-ins',
-                        fontSize: 20,
-                        display: true,
-                      },
-                      legend: {
-                        display: true,
-                        position: 'top',
-                      },
 
                     }}
                   />
-
                 </div>
 
               </div>
@@ -895,274 +1450,29 @@ class Test extends React.Component {
           if (this.state.plotData === '') {
             return <h1> </h1>;
           }
-
           return (
 
             <div style={{ paddingTop: '5%', margin: '10px' }}>
               <form noValidate autoComplete="off" style={{ paddingLeft: '10px', paddingRight: '20px' }}>
-                <lable><h5><spam>Detailed Info Table</spam></h5></lable>
+                <lable><h5><span>Detailed Info Table</span></h5></lable>
+                selectXAxisData
+                <div key={rows.sensorId}>
+                  <div style={{ height: 1000, width: '80%' }}>
+                    <DataGrid
+                      rows={rows}
+                      columns={columns}
+                      pageSize={20}
+                      components={{ Toolbar: GridToolbarExport }}
+                      icon
+                      SettingsApplicationsOutlinedIcon
+                    />
 
-                <section className="py-4 container">
-                  <div className="row justify-content-center">
-                    <table className="table table-striped" id="emp-table" style={{ borderWidth: '1px', borderColor: '#aaaaaa', borderStyle: 'solid' }}>
-                      <thead className="thead-light">
-                        <tr>
-                          <th scope="col">SensorId</th>
-                          <th scope="col">TimeStamp</th>
-                          <th scope="col">Value</th>
-
-                        </tr>
-                      </thead>
-                      {
-
-                    this.state.sensorReadingOneTwo.map((dynamicData) => (
-
-                      <tr>
-                        <td>
-                          {' '}
-                          {dynamicData.sensorId}
-                          {' '}
-
-                        </td>
-                        <td>
-                          {' '}
-                          {dynamicData.timestamp}
-                          {' '}
-                        </td>
-                        <td>
-                          {' '}
-                          {this.state.converterhd.hexToDec(dynamicData.value)}
-                          {' '}
-                        </td>
-
-                      </tr>
-                    ))
-                  }
-                      {
-
-                    this.state.sensorReadOneTwo.map((dynamicData) => (
-                      <tr>
-                        <td>
-                          {' '}
-                          {dynamicData.sensorId}
-                          {' '}
-
-                        </td>
-                        <td>
-                          {' '}
-                          {dynamicData.timestamp}
-                          {' '}
-                        </td>
-                        <td>
-                          {' '}
-                          {this.state.converterhd.hexToDec(dynamicData.value)}
-                          {' '}
-                        </td>
-
-                      </tr>
-                    ))
-                  }
-                      {
-
-                    this.state.sReadingOneTwo.map((dynamicData) => (
-                      <tr>
-                        <td>
-                          {' '}
-                          {dynamicData.sensorId}
-                          {' '}
-
-                        </td>
-                        <td>
-                          {' '}
-                          {dynamicData.timestamp}
-                          {' '}
-                        </td>
-                        <td>
-                          {' '}
-                          {this.state.converterhd.hexToDec(dynamicData.value)}
-                          {' '}
-                        </td>
-
-                      </tr>
-                    ))
-                  }
-                      {
-
-                    this.state.sReadingOne.map((dynamicData) => (
-                      <tr>
-                        <td>
-                          {' '}
-                          {dynamicData.sensorId}
-                          {' '}
-
-                        </td>
-                        <td>
-                          {' '}
-                          {dynamicData.timestamp}
-                          {' '}
-                        </td>
-                        <td>
-                          {' '}
-                          {this.state.converterhd.hexToDec(dynamicData.value)}
-                          {' '}
-                        </td>
-
-                      </tr>
-                    ))
-                  }
-                      {
-
-                    this.state.sReadingTwo.map((dynamicData) => (
-                      <tr>
-                        <td>
-                          {' '}
-                          {dynamicData.sensorId}
-                          {' '}
-
-                        </td>
-                        <td>
-                          {' '}
-                          {dynamicData.timestamp}
-                          {' '}
-                        </td>
-                        <td>
-                          {' '}
-                          {this.state.converterhd.hexToDec(dynamicData.value)}
-                          {' '}
-                        </td>
-
-                      </tr>
-                    ))
-                  }
-                      {
-
-                    this.state.sReadingThree.map((dynamicData) => (
-                      <tr>
-                        <td>
-                          {' '}
-                          {dynamicData.sensorId}
-                          {' '}
-
-                        </td>
-                        <td>
-                          {' '}
-                          {dynamicData.timestamp}
-                          {' '}
-                        </td>
-                        <td>
-                          {' '}
-                          {this.state.converterhd.hexToDec(dynamicData.value)}
-                          {' '}
-                        </td>
-
-                      </tr>
-                    ))
-                  }
-                      {
-
-                    this.state.sReadingFour.map((dynamicData) => (
-                      <tr>
-                        <td>
-                          {' '}
-                          {dynamicData.sensorId}
-                          {' '}
-
-                        </td>
-                        <td>
-                          {' '}
-                          {dynamicData.timestamp}
-                          {' '}
-                        </td>
-                        <td>
-                          {' '}
-                          {this.state.converterhd.hexToDec(dynamicData.value)}
-                          {' '}
-                        </td>
-
-                      </tr>
-                    ))
-                  }
-                      {
-
-                    this.state.sReadingFive.map((dynamicData) => (
-                      <tr>
-                        <td>
-                          {' '}
-                          {dynamicData.sensorId}
-                          {' '}
-
-                        </td>
-                        <td>
-                          {' '}
-                          {dynamicData.timestamp}
-                          {' '}
-                        </td>
-                        <td>
-                          {' '}
-                          {this.state.converterhd.hexToDec(dynamicData.value)}
-                          {' '}
-                        </td>
-
-                      </tr>
-                    ))
-                  }
-                      {
-
-                    this.state.sReadingSix.map((dynamicData) => (
-                      <tr>
-                        <td>
-                          {' '}
-                          {dynamicData.sensorId}
-                          {' '}
-
-                        </td>
-                        <td>
-                          {' '}
-                          {dynamicData.timestamp}
-                          {' '}
-                        </td>
-                        <td>
-                          {' '}
-                          {this.state.converterhd.hexToDec(dynamicData.value)}
-                          {' '}
-                        </td>
-
-                      </tr>
-                    ))
-                  }
-                      {
-
-                    this.state.sReadingSeven.map((dynamicData) => (
-                      <tr>
-                        <td>
-                          {' '}
-                          {dynamicData.sensorId}
-                          {' '}
-
-                        </td>
-                        <td>
-                          {' '}
-                          {dynamicData.timestamp}
-                          {' '}
-                        </td>
-                        <td>
-                          {' '}
-                          {this.state.converterhd.hexToDec(dynamicData.value)}
-                          {' '}
-                        </td>
-
-                      </tr>
-                    ))
-                  }
-
-                    </table>
+                    <br />
                   </div>
-                </section>
+                </div>
 
               </form>
-
             </div>
-
           );
         })()}
 
@@ -1171,4 +1481,4 @@ class Test extends React.Component {
     );
   }
 }
-export default Test;
+export default EquipmentWise;
