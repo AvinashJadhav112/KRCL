@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react/no-direct-mutation-state */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable jsx-a11y/label-has-associated-control */
@@ -11,14 +12,22 @@
 /* eslint-disable max-len */
 /* eslint-disable camelcase */
 /* eslint-disable no-unused-vars */
+
 /* eslint-disable no-console */
 /* eslint-disable react/destructuring-assignment */
 
 import React, { Component } from 'react';
 import axios from 'axios';
+import Select from 'react-select';
+import { DataGrid } from '@material-ui/data-grid';
 import { Link } from 'react-router-dom';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
+// import Dashboard from '../components/dashboard';
+
+import CompEquipmentAccess from './CompEquipmentAccess';
+
+import CompanyAddUserDataGrid from './companyAddUserDataGrid';
 
 const useStyles = makeStyles((theme) => ({
 
@@ -109,7 +118,7 @@ class CompanyAddForm extends Component {
 
   handleError(error) {
     if (error.response && error.response.status === 409) {
-      alert('There is already a sensor with same name');
+      alert('Company already exist');
     }
   }
 
@@ -138,7 +147,8 @@ class CompanyAddForm extends Component {
             console.log(res);
             console.log(res.data);
             if (res.status === 201) {
-              alert('Data Added Successfully..');
+              alert('Company Added Successfully..');
+              this.props.history.push('/um_company/companyTable.js');
             }
           },
           (error) => {
@@ -281,134 +291,146 @@ class CompanyAddForm extends Component {
     ];
 
     return (
-      <div>
+      <div style={{ marginLeft: '5%', marginTop: '7%' }}>
         <div style={{
-          flexGrow: 1, paddingLeft: '20px', paddingTop: '0%', marginTop: '6%',
+          border: '1px solid grey', width: '50%', padding: '2% 0 0% 5%', borderRadius: '15px', margin: '0 0 0 20%',
         }}
-
         >
-          <Typography variant="h4">Add Company</Typography>
-        </div>
-
-        <div style={{
-          display: 'flex', paddingTop: '0%', paddingBottom: '2%',
-        }}
-        />
-        <form style={{ marginLeft: '2%' }} onSubmit={this.handleSubmit}>
-          <div className="form-group col-4">
-            <label>Status</label>
-            <div check>
-              <input
-                type="radio"
-                value="active"
-                checked={this.state.status === 'active'}
-                onChange={this.handleRadioChange}
-              />
-              <span style={{ marginLeft: '5px' }}>Active</span>
-            </div>
-
-            <div check style={{ marginTop: '5%' }}>
-              <input
-                type="radio"
-                value="inactive"
-                checked={this.state.status === 'inactive'}
-                onChange={this.handleRadioChange}
-              />
-              <span style={{ marginLeft: '5px' }}>InActive</span>
-            </div>
+          <div>
+            <h3>Add Company</h3>
           </div>
-          <div className="form-row">
-            <div className="form-group col-3">
-              <label>Company Name</label>
-              <input
-                name="companyName"
-                type="text"
-                onChange={this.handleChange}
-                className="form-control"
-              />
-              <div className="text-danger">{this.state.errors.companyName}</div>
-            </div>
 
-            <div className="form-group col-3">
-              <label>Website URL</label>
-              <input
-                name="websiteURL"
-                type="int"
-                onChange={this.handleChange}
-                className="form-control"
-              />
-              <div className="text-danger">
-                {this.state.errors.websiteURL}
+          <form style={{ width: '75%' }} onSubmit={this.handleSubmit}>
+            <div className="row" style={{ marginRight: '-18%' }}>
+
+              <div className=" "> </div>
+              <div className=" "> </div>
+              <div className=" "> </div>
+              <div className=" "> </div>
+              <div className=" "> </div>
+              <div className="mt-2 ">
+                <label>Company Name</label>
+                <input
+                  // style={{ width: '70%' }}
+                  name="companyName"
+                  type="text"
+                  onChange={this.handleChange}
+                  className="form-control"
+                />
+                <div className="text-danger">{this.state.errors.companyName}</div>
+              </div>
+
+              <div className="mt-2 ">
+                <label>Website URL</label>
+                <input
+                  // style={{ width: '70%' }}
+                  name="websiteURL"
+                  type="int"
+                  onChange={this.handleChange}
+                  className="form-control"
+                />
+                <div className="text-danger">
+                  {this.state.errors.websiteURL}
+                </div>
+              </div>
+              <div className="mt-2 ">
+                <label>Mobile No</label>
+                <input
+                  // style={{ width: '70%' }}
+                  name="mobile"
+                  type="int"
+                  onChange={this.handleChange}
+                  className="form-control"
+                />
+                <div className="text-danger">
+                  {this.state.errors.mobile}
+                </div>
+              </div>
+
+              <div className="mt-2 ">
+                <label>Email ID</label>
+                <input
+                  // style={{ width: '70%' }}
+                  name="emailID"
+                  type="int"
+                  onChange={this.handleChange}
+                  className="form-control"
+                />
+                <div className="text-danger">
+                  {this.state.errors.emailID}
+                </div>
+              </div>
+
+              <div className="mt-2">
+                <label> Company Added Date</label>
+                <input
+                  // style={{ width: '70%' }}
+                  name="companyAddedDate"
+                  type="date"
+                  onChange={this.handleChange}
+                  className="form-control"
+                />
+                <div className="text-danger">
+                  {this.state.errors.companyAddedDate}
+                </div>
               </div>
             </div>
-            <div className="form-group col-3">
-              <label>Mobile No</label>
-              <input
-                name="mobile"
-                type="int"
-                onChange={this.handleChange}
-                className="form-control"
-              />
-              <div className="text-danger">
-                {this.state.errors.mobile}
+
+            <div className=" d-flex justify-content-evenly " style={{ margin: '4% 0 0 -17%' }}>
+              <label>Status</label>
+              <div check>
+                <input
+                  type="radio"
+                  value="active"
+                  checked={this.state.status === 'active'}
+                  onChange={this.handleRadioChange}
+                />
+                <span style={{ marginLeft: '5px' }}>Active</span>
+              </div>
+
+              <div check>
+                <input
+                  type="radio"
+                  value="inactive"
+                  checked={this.state.status === 'inactive'}
+                  onChange={this.handleRadioChange}
+                />
+                <span style={{ marginLeft: '5px' }}>InActive</span>
               </div>
             </div>
 
-            <div className="form-group col-3">
-              <label>Email ID</label>
-              <input
-                name="emailID"
-                type="int"
-                onChange={this.handleChange}
-                className="form-control"
-              />
-              <div className="text-danger">
-                {this.state.errors.emailID}
-              </div>
+            <div className="mt-3 ">
+              <input type="submit" value="Submit" className="btn btn-primary" />
+              <Link to="/um_company/companyDataTable" style={{ textDecoration: 'none' }}>
+                <input type="reset" value="Cancel" className="btn btn-secondary" style={{ marginLeft: '2%' }} />
+              </Link>
             </div>
 
-            <div className="form-group col-4">
-              <label> Company Added Date</label>
-              <input
-                name="companyAddedDate"
-                type="date"
-                onChange={this.handleChange}
-                className="form-control"
-              />
-              <div className="text-danger">
-                {this.state.errors.companyAddedDate}
-              </div>
-            </div>
+          </form>
 
+          <div style={{ marginLeft: '2%', paddingTop: '1%' }}>
+            <Typography>
+              {/* <h5>Equipment Access:</h5> */}
+            </Typography>
           </div>
-          {' '}
-          <div className="form-group col-4">
-            <input type="submit" value="Submit" className="btn btn-primary" />
-            <Link to="/um_company/company.js" style={{ textDecoration: 'none' }}>
-              <input type="reset" value="Cancel" className="btn btn-secondary" style={{ marginLeft: '2%' }} />
-            </Link>
+
+          <div className=" " />
+          <div className=" " />
+
+          {/* <div style={{ marginBottom: '2%', marginLeft: '2%' }}>
+          <CompEquipmentAccess />
+        </div> */}
+
+          <div style={{ marginLeft: '2%', paddingTop: '1%' }}>
+            <Typography>
+              {/* <h5>Users:</h5> */}
+            </Typography>
           </div>
-        </form>
 
-        <div style={{ marginLeft: '2%', paddingTop: '1%' }}>
-          <Typography>
-            {/* <h5>Equipment Access:</h5> */}
-          </Typography>
+          <div style={{ marginBottom: '2%', marginLeft: '2%' }}>
+            {/* <CompanyAddUserDataGrid /> */}
+          </div>
         </div>
-
-        <div className="form-group col-4" />
-        <div className="form-group col-4" />
-
-        <div style={{ marginLeft: '2%', paddingTop: '1%' }}>
-          <Typography>
-            {/* <h5>Users:</h5> */}
-          </Typography>
-        </div>
-
-        <div style={{ marginBottom: '2%', marginLeft: '2%' }}>
-          {/* <CompanyAddUserDataGrid /> */}
-        </div>
-
       </div>
 
     );

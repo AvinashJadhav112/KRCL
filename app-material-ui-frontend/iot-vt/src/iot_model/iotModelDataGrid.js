@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable import/no-cycle */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable no-restricted-globals */
@@ -6,6 +7,7 @@
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable react/no-direct-mutation-state */
 /* eslint-disable no-unused-expressions */
+
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unused-state */
@@ -14,14 +16,7 @@
 /* eslint-disable react/destructuring-assignment */
 import React from 'react';
 import axios from 'axios';
-import { DataGrid } from '@material-ui/data-grid';
-import Button from '@material-ui/core/Button';
-import { Link } from 'react-router-dom';
-import EditIcon from '@material-ui/icons/Edit';
-import DeleteIcon from '@material-ui/icons/Delete';
-import EditAttributesIcon from '@material-ui/icons/EditAttributes';
-import Tooltip from '@material-ui/core/Tooltip';
-import IotSensorInput from './iotSensorInput';
+import Typography from '@material-ui/core/Typography';
 
 class IotModelDataGrid extends React.Component {
   constructor(props) {
@@ -30,8 +25,8 @@ class IotModelDataGrid extends React.Component {
       loading: true,
       iotModelName: '',
       updatedIotModelName: '',
-      model_name: '', // selected model
-      id: [],
+      model_name: this.props.name, // selected model
+      id: this.props.id,
       sensorReading: [],
       deviceInfo: [],
       modelName: '',
@@ -50,40 +45,27 @@ class IotModelDataGrid extends React.Component {
 
     const urll = 'http://192.168.0.194:5005/api/1.0/devices';
     const res = await axios.get(urll);
+    // const ress = (res.data.map((u) => this.setState({ Model: u.modelName })));
 
     this.state.Model = res.data.map((u) => (
       u.iotModel.iotModelName
     ));
 
+    // const ress = await axios.all(response.data.map((u) => axios.get(`//vtiot-cloudapp.nelkinda.com/api/1.0/dashboard/devices/${u.id}/sensors/latest`)));
+    // console.log(res.data.modelName);
+    // console.log(response.data[0].name.id);
+    // console.log(res.data.map((u) => u.modelName)); // To check what data is storing after mapping..
+    // var arr = this.state.Model;
+    // console.log(this.state.Model.indexOf('Forklift Model') > -1);
+    // console.log(this.state.Model.includes('Forklift Model'));
+    // console.log(res.data.map((u) => u.modelName).includes('JSW Hoist')); // This will work!!
+
     this.setState({ deviceInfo: res.data, loading: false });
   }
 
-  handleDelete = (event) => {
-    const urll = 'http://192.168.0.194:5005/api/1.0/devices';
-    const response = axios.get(urll);
-    const modeltodelete = this.state.model_name;
-    this.state.samedevices = this.state.Model.filter(() => this.state.model_name);
-    const confirmAction = confirm('Are you sure to Delete this Iotmodel?');
-    if (confirmAction) {
-    // eslint-disable-next-line eqeqeq
-      if (this.state.samedevices.includes(this.state.model_name) == true) {
-        alert('This IOT Model is linked with IOT device! Please delete respected device first');
-      } else {
-        const iotModelToDelete = this.state.model_name;
-        event.preventDefault();
-        axios.delete(`http://192.168.0.194:5005/api/1.0/iotModels/${iotModelToDelete}`)
-
-          .then((res) => {
-            this.componentDidMount();
-            this.state.model_name = '';
-            this.state.updatedIotModelName = '';
-            alert('The Model is Deleted!');
-          });
-      }
-    } else {
-      console.log('You are click on cancel ');
-    }
-  };
+  // currentlySelected=(selections) => {
+  //   this.setState({ iotModelName: selections });
+  //
 
   handleEditEvent=(val) => val
 
@@ -109,9 +91,13 @@ class IotModelDataGrid extends React.Component {
         .put(`http://192.168.0.194:5005/api/1.0/iotModels/${sensor.id}`, sensor)
         .then(
           (res) => {
+            // console.log(res);
+            // console.log(res.data);
             if (res.status === 200) {
               alert('Model name update successfully..');
             }
+            // console.log('Old model name: ', res.data.model_name);
+            // console.log('Updated Model: ', res.data.updatedIotModelName);
             const updatedSensors = [...this.state.sensorReading];
             updatedSensors[sensorIndex] = sensor;
             this.state.model_name = '';
@@ -149,143 +135,40 @@ class IotModelDataGrid extends React.Component {
   }
 
   render() {
-    const columns = [
-      { field: 'iotModelName', headerName: 'Model Name', width: 250 },
-      // here after selecting sensor mapping button selected models name should be pre selected on iotSensorInput.js dropdown
-      {
-        field: 'sensor_mappingButton',
-        headerName: 'Add/View Sensor Mapping',
-        sortable: false,
-        width: 250,
-        renderCell: () => {
-          const onClick = () => {
-
-          };
-
-          return (
-            <Button id="add-view-sensorMapping-button" onClick={onClick}>
-              <Link to="/iot_model/iotAddSensorMapping.js">
-                <EditAttributesIcon />
-              </Link>
-            </Button>
-          );
-        },
-      },
-      // here in this edit button should map with model name which is present in that same column
-      // for editing either it can go to another page for editing or it can be done on table to {saw one example on google}
-      {
-        field: 'editButton',
-        headerName: 'Edit',
-        sortable: false,
-        width: 100,
-        renderCell: () => {
-          const onClick = () => {
-
-          };
-
-          return (
-            <Button onClick={onClick}>
-              <Link to="#">
-                <EditIcon />
-              </Link>
-            </Button>
-          );
-        },
-      },
-      // this should delete whole model with sensors from table
-      {
-        field: 'deleteButton',
-        headerName: 'Delete',
-        sortable: false,
-        width: 100,
-        renderCell: () => {
-          const onClick = () => {
-          };
-
-          return (
-            <Button type="submit" onClick={this.handleDelete}>
-              <Tooltip title="Please select model before delete">
-                <DeleteIcon />
-              </Tooltip>
-            </Button>
-          );
-        },
-      },
-    ];
-
-    const row = [];
-    this.state.sensorReading.map((it) => {
-      row.push(
-        {
-          id: it.id,
-          iotModelName: it.iotModelName,
-        },
-      );
-    });
-
     return (
       <div>
-        <div key={row.id}>
-          <div style={{
-            display: 'flex', height: 400, marginTop: '2%',
-          }}
-          >
-            <DataGrid
-              checkboxSelection
-              rows={row}
-              onRowSelected={(newSelection) => {
-                this.setState({ model_name: newSelection.data.iotModelName, id: newSelection.data.id });
-              }}
-              columns={columns}
-              pageSize={6}
-              icon
-              SettingsApplicationsOutlinedIcon
-            />
-            <br />
-          </div>
-        </div>
-        {(() => {
+
+        {/* {(() => {
           if (this.state.model_name === '') {
             return <h1> </h1>;
-          }
+          } */}
 
-          return (
+        <div style={{ marginTop: '2%' }}>
 
-            <div style={{ marginTop: '2%' }}>
+          <form onSubmit={this.handleSubmit}>
+            <div className="form-row">
+              <Typography>
+                <h3>Edit Model</h3>
+              </Typography>
+              <div className="form-group col-10" />
 
-              <form onSubmit={this.handleSubmit}>
-                <div className="form-row">
+              <div className="form-group" style={{ width: '83%' }}>
+                <label>Update Model Name</label>
+                <input
+                  placeholder={this.state.model_name}
+                  name="updatedIotModelName"
+                  type="text"
+                  value={this.state.updatedIotModelName}
+                  onChange={this.handleChange}
+                  className="form-control"
+                />
+                <div className="text-danger">{this.state.errors.updatedIotModelName}</div>
+              </div>
 
-                  <div className="form-group col-4">
-                    <label>Old Model Name</label>
-                    <input
-                      name="model_name"
-                      type="text"
-                      value={this.state.model_name}
-                      onChange={this.handleChange}
-                      className="form-control"
-                      disabled
-                    />
-
-                  </div>
-
-                  <div className="form-group col-4">
-                    <label>Update Model Name</label>
-                    <input
-                      name="updatedIotModelName"
-                      type="text"
-                      value={this.state.updatedIotModelName}
-                      onChange={this.handleChange}
-                      className="form-control"
-                    />
-                    <div className="text-danger">{this.state.errors.updatedIotModelName}</div>
-                  </div>
-                </div>
-                <input type="submit" value="Edit Model" className="btn btn-success" />
-              </form>
             </div>
-          );
-        })()}
+            <input type="submit" value="Edit Model" className="btn btn-success" />
+          </form>
+        </div>
 
       </div>
 

@@ -15,24 +15,26 @@ import AlertKRCLSummaryDash from './alert_summary/alertKRCLSummaryDash';
 import './App.css';
 import EquipmentWiseKRCL from './dash_equipment/equipmentWiseKRCL';
 import SummaryKRCL from './dash_summary/summaryKRCL.js';
+import Routers from './Routers';
 
 function RouterKRCL() {
   return (
 
-             <Router>
+    <Router>
 
-                <Switch>
+      <Switch>
 
-                   <Route exact path="/alert_summary/alertKRCLSummaryDash" component={AlertKRCLSummaryDash} />
+        <Route exact path="/alert_summary/alertKRCLSummaryDash" component={AlertKRCLSummaryDash} />
 
-                   <Route exact path="/alert_equipment_wise/equipmentWiseAlertKRCL" component={EquipmentWiseAlertKRCL} />
+        <Route exact path="/alert_equipment_wise/equipmentWiseAlertKRCL" component={EquipmentWiseAlertKRCL} />
 
-                   <Route exact path="/dash_summary/summaryKRCL" component={SummaryKRCL} />
+        <Route exact path="/dash_summary/summaryKRCL" component={SummaryKRCL} />
 
-                   <Route exact path="/dash_equipment/equipmentWiseKRCL" component={EquipmentWiseKRCL} />
+        <Route exact path="/dash_equipment/equipmentWiseKRCL" component={EquipmentWiseKRCL} />
 
-                </Switch>
-             </Router>
+      </Switch>
+      <Routers />
+    </Router>
 
   );
 }

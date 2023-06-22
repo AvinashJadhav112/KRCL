@@ -8,6 +8,7 @@
 /* eslint-disable react/no-direct-mutation-state */
 /* eslint-disable no-restricted-globals */
 /* eslint-disable react/no-unescaped-entities */
+
 /* eslint-disable spaced-comment */
 /* eslint-disable camelcase */
 /* eslint-disable max-len */
@@ -24,8 +25,12 @@ import Button from '@material-ui/core/Button';
 import EditIcon from '@material-ui/icons/Edit';
 import { makeStyles } from '@material-ui/core/styles';
 import DeleteIcon from '@material-ui/icons/Delete';
+import EditAttributesIcon from '@material-ui/icons/EditAttributes';
 import Typography from '@material-ui/core/Typography';
+import Tooltip from '@material-ui/core/Tooltip';
 import CompanyAddForm from './companyAdd';
+
+// import Dashboard from '../components/dashboard';
 
 const useStyles = makeStyles((theme) => ({
 
@@ -159,6 +164,7 @@ class Company extends React.Component {
     const url = 'http://192.168.0.194:5005/api/1.0/company/';
     const response = await axios.get(url);
     this.setState({ companyDetails: response.data, loading: false });
+    console.log(this.state.companyDetails);
   }
 
   handleSubmit = (e) => {
@@ -290,7 +296,7 @@ class Company extends React.Component {
 
           return (
             <Button onClick={onClick}>
-              <Link to="#">
+              <Link to="/um_company/EditCompanyData">
                 <EditIcon />
               </Link>
             </Button>
@@ -406,7 +412,9 @@ class Company extends React.Component {
 
               <form onSubmit={this.handleSubmit} style={{ marginTop: '2%' }}>
                 <div className="form-row" />
-
+                <Typography>
+                  <h3>Edit Company</h3>
+                </Typography>
                 <div className="form-row">
 
                   <div className="form-group col-4">

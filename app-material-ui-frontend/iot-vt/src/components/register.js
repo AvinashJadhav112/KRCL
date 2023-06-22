@@ -12,11 +12,15 @@
 /* eslint-disable no-console */
 /* eslint-disable no-unused-vars */
 import '../App.css';
-import React, { useState } from 'react';
-import { useHistory, useLocation } from 'react-router';
+import React, { Component, useEffect, useState } from 'react';
+import { useHistory, useLocation, Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 function Register() {
+  // const [name, setName] = useState("");
   const [email, setEmail] = useState('');
+  // const [username, setUsername] = useState("");
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const history = useHistory();
@@ -56,6 +60,7 @@ function Register() {
   };
 
   const saveUser = () => {
+    // let data = { email, password };
     const isValid = validate();
     if (isValid) {
       const data = {
@@ -74,6 +79,9 @@ function Register() {
         body: JSON.stringify(data),
       }).then((result) => {
         console.warn('result', result);
+
+        // result.json().then((resp) => {
+        console.log(result);
         console.log(result);
         console.log(result.status);
 
@@ -96,6 +104,11 @@ function Register() {
         else {
           alert('invalid credentials');
         }
+        // },
+        // (error) => {
+        //   handleError(error);
+        //   return error;
+        // };
       });
     }
   };
@@ -105,7 +118,7 @@ function Register() {
       <div className="card card-login mx-auto mt-5">
         <div className="card-header">
           <p>
-            <img src="//vervetronics.com/wp-content/uploads/2019/11/Verv_Logo_Final_resized.jpg" alt="VerveTronics" width="100%" height="100%" />
+            <img src="https://www.vervetronics.com/wp-content/uploads/2021/08/cropped-VT_Logo.png" alt="VerveTronics" width="100%" height="100%" />
           </p>
 
           <h3 style={{ textAlign: 'center' }}>Register</h3>
@@ -125,7 +138,10 @@ function Register() {
                   name="email"
                   className="form-control"
                 />
+
+                {/* <div className="text-danger">{email}</div> */}
               </div>
+              {/* <div><p style={{color: 'green'}}>{errorMessage}</p></div> */}
 
               <div className="form-group">
                 <label>Password</label>
@@ -139,6 +155,7 @@ function Register() {
 
                   className="form-control"
                 />
+                {/* <div className="text-danger">{password}</div> */}
               </div>
 
               <div><p style={{ color: 'green' }}>{errorMessage}</p></div>
@@ -149,15 +166,28 @@ function Register() {
 
                 </button>
 
-                <button className="btn btn-secondary btn-block" type="reset">
+                <button onClick={() => window.history.go(-1)}className="btn btn-secondary btn-block" type="reset">
                   Cancel
                 </button>
               </div>
 
             </form>
           </div>
+          {/* <div className="text-center">
+                <Link className="d-block small mt-3" to="">Login Your Account</Link>
+                <Link className="d-block small" to="#">Forgot Password?</Link>
+            </div> */}
         </div>
       </div>
+
+      {/* <h1>Register New User</h1>
+      <input type="text" value={email} onChange={(e) => { setEmail(e.target.value) }} name="email" />
+      <br />
+      <br />
+      <input type="text" value={password} onChange={(e) => { setPassword(e.target.value) }} name="password" />
+      <br />
+      <br />
+      <button type="button" onClick={saveUser}> Submit</button> */}
     </div>
   );
 }

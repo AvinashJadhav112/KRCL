@@ -1,4 +1,9 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+/* eslint-disable no-restricted-globals */
+/* eslint-disable no-alert */
 /* eslint-disable react/prop-types */
+
 /* eslint-disable max-len */
 /* eslint-disable array-callback-return */
 /* eslint-disable react/destructuring-assignment */
@@ -6,54 +11,45 @@
 /* eslint-disable no-console */
 import React from 'react';
 import axios from 'axios';
-import { DataGrid } from '@material-ui/data-grid';
 import Button from '@material-ui/core/Button';
-import { Link } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Dialog from '@material-ui/core/Dialog';
+
+// import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import TextField from '@material-ui/core/TextField';
+
+// import Dashboard from '../components/dashboard';
 
 class IotSensorTable extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     this.state = {
       loading: true,
       sensorReading: [],
       iotModelName: '',
+      // isDialogOpen: false,
       openDeleteDialog: false,
       reload: false,
+      model_id: '',
     };
   }
 
   async componentDidMount() {
-    const url = 'http://192.168.0.194:5005/api/1.0/iotModels';
-    const response = await axios.get(url);
-    console.log(response.data);
+    // const modelName = window.location.href.split('/')[6];
+    const modelId = window.location.href.split('/')[6];
 
-    this.setState({ sensorReading: response.data, loading: false });
+    const url1 = `http://192.168.0.194:5005/api/1.0/iotModel/${modelId}`;
+    const response1 = await axios.get(url1);
+    console.log(response1.data);
+
+    this.setState({ sensorReading: response1.data.sensors, loading: false });
+    console.log(this.state.sensorReading);
+    this.setState({ model_id: modelId });
   }
-
-  handleChange = (event) => {
-    this.setState({ iotModelName: event.target.value });
-  }
-
-  handleSubmit = (event) => {
-    const iotModelToDelete = event.target.getAttribute('data-arg1');
-    event.preventDefault();
-    axios.delete(`http://192.168.0.194:5005/api/1.0/iotModels/${iotModelToDelete}`)
-      .then((res) => {
-        console.log(res);
-        console.log(res.data);
-      });
-  }
-
-  handleClickOpenDeleteDialog = () => this.setState({ openDeleteDialog: true })
-
-  handleCloseDeleteDialog = () => this.setState({ openDeleteDialog: false })
 
   refresh=() => {
     setTimeout(() => {
@@ -61,135 +57,106 @@ class IotSensorTable extends React.Component {
     }, 100);
   }
 
+  handleDeleteSensor = (id) => {
+    console.log(id);
+    const modelId = window.location.href.split('/')[6];
+    // const ModelIdToDelete = this.state.id;
+    const SensorToDelete = id;
+    const confirmAction = confirm('Are you sure to Delete this sensor?');
+    if (confirmAction) {
+      axios.delete(`http://192.168.0.194:5005/api/1.0/iotModel/${modelId}/sensor/${SensorToDelete}`)
+        .then((res) => {
+          console.log(res);
+          console.log(res.data);
+          this.componentDidMount();
+          // this.getOptions();
+        });
+    }
+  }
+
   render() {
-    const columns = [
-      { field: 'name', headerName: 'Sensor Name', width: 130 },
-      { field: 'min', headerName: 'Min', width: 130 },
-      { field: 'max', headerName: 'Max', width: 130 },
-      { field: 'processedDataType', headerName: 'Processed Data', width: 130 },
-      { field: 'rawDataType', headerName: 'Raw Data', width: 130 },
-      { field: 'unit', headerName: 'Unit', width: 130 },
-      { field: 'formula', headerName: 'Formula', width: 200 },
-      {
-        field: 'editButton',
-        headerName: 'Edit',
-        sortable: false,
-        width: 100,
-        renderCell: () => {
-          const onClick = () => {
+    <div>
+      this.state.isDialogOpen &&
+      <Dialog
+          // open={this.state.openDeleteDialog}
+        keepMounted
+        onClose={this.handleCloseDeleteDialog}
+        aria-labelledby="alert-dialog-slide-title"
+        aria-describedby="alert-dialog-slide-description"
+      >
+        <DialogTitle id="alert-dialog-slide-title">Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-slide-description">
+            Are you sure you want to delete ??
+          </DialogContentText>
+        </DialogContent>
+      </Dialog>
+    </div>;
 
-          };
-
-          return (
-            <Button onClick={onClick}>
-              <Link to="/iot_model/iotEditSensorMapping.js">
-                <EditIcon />
-              </Link>
-            </Button>
-          );
-        },
-      },
-
-      {
-        field: 'deleteButton',
-        headerName: 'Delete',
-        sortable: false,
-        width: 100,
-        renderCell: () => {
-          // eslint-disable-next-line no-unused-vars
-          const onClick = () => {
-
-          };
-
-          return <Button onClick={this.handleClickOpenDeleteDialog}><DeleteIcon /></Button>;
-        },
-      },
-    ];
-
-    const row = [];
-    this.state.sensorReading.map((it) => {
-      console.log(it);
-      it.sensors.map((itt) => {
-        row.push(
-          {
-            id: itt.id,
-            name: itt.name,
-            min: itt.min,
-            max: itt.max,
-            processedDataType: itt.processedDataType,
-            rawDataType: itt.rawDataType,
-            unit: itt.unit,
-            formula: itt.formula,
-          },
-        );
-      });
-    });
-
-    console.log(row);
+    return (
       <div>
-        this.state.isDialogOpen &&
-        <Dialog
-          keepMounted
-          onClose={this.handleCloseDeleteDialog}
-          aria-labelledby="alert-dialog-slide-title"
-          aria-describedby="alert-dialog-slide-description"
+        <>
+
+          <Button onClick={() => { this.props.history.push(`/iot_model/AddSensorForm/${this.state.model_id}`); }} style={{ margin: '7% 0 0 86%' }} id="add-model-button" variant="contained" color="primary">
+            Add New Sensor
+          </Button>
+
+        </>
+        <div style={{
+          margin: '1%  0 0 2%', maxHeight: '520px', overflowY: 'auto', border: '1px solid #ccc',
+        }}
         >
-          <DialogTitle id="alert-dialog-slide-title">Delete</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-slide-description">
-              Are you sure you want to delete ??
-            </DialogContentText>
-          </DialogContent>
-        </Dialog>
-      </div>;
+          <table
+            style={{
+              border: '1px solid transperent', boxShadow: '2px 7px 15px 5px #80808033', borderRadius: '10px', outline: 'none',
+            }}
+            className="table table-hover "
+          >
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Sensor Name</th>
+                <th scope="col">Min</th>
+                <th scope="col">Max</th>
+                <th scope="col">Processed Data</th>
+                <th scope="col">Raw Data</th>
+                <th scope="col">Unit</th>
+                <th scope="col">Formula</th>
+                <th scope="col">Dash Seq No</th>
+                <th scope="col">Alert Time</th>
+                <th scope="col">Alert Criticality</th>
+                <th scope="col">Edit</th>
+                <th scope="col">Delete</th>
+              </tr>
+            </thead>
+            <tbody className="table-group-divider">
 
-      return (
-        <div>
-          {/* <Dashboard /> */}
-          {this.state.sensorReading.map((reading) => (
-          // TODO find a good alternative to the key property
-            <div key={row.id}>
-              <form onSubmit={this.handleSubmit} data-arg1={reading.iotModelName}>
-                <div className="form-row">
-                  <div className="form-group col-4" style={{ marginTop: '2%' }}>
-                    <TextField
-                      disabled
-                      id="outlined-disabled"
-                      name="name"
-                      type="text"
-                      variant="outlined"
-                      value={reading.iotModelName}
-                      onChange={this.handleChange}
-                      className="form-control"
-                    />
-                  </div>
-                  <button type="submit" onClick={this.refresh} className="btn btn-primary mr-1" style={{ margin: '2%' }}>
-                    Delete Model
-                    <DeleteIcon />
-                  </button>
-                  <div className="form-group col-4" />
-                  {/* this is added just to check props call */}
-                  <h3 className="form-group col-4">{this.props.iotModelName}</h3>
-                </div>
-              </form>
-              <div style={{ height: 400, width: '100%', marginTop: '5%' }}>
-                <DataGrid
-                  rows={row}
-                  columns={columns}
-                  pageSize={6}
-                  icon
-                  SettingsApplicationsOutlinedIcon
-                />
-                <br />
-              </div>
-            </div>
-
-          ))}
+              {this.state.sensorReading.map((data) => (
+                <tr>
+                  <td>{data.sensorId}</td>
+                  <td>{data.name}</td>
+                  <td>{data.min}</td>
+                  <td>{data.max}</td>
+                  <td>{data.processedDataType}</td>
+                  <td>{data.rawDataType}</td>
+                  <td>{data.unit}</td>
+                  <td>{data.formula}</td>
+                  <td>{data.dashboardOrder}</td>
+                  <td>{data.alertTime}</td>
+                  <td>{data.alertCriticality}</td>
+                  <td onClick={() => this.props.history.push(`/iot_model/EditSensorForm/${data.id}/${this.state.model_id}`)}><EditIcon /></td>
+                  <td onClick={() => { this.handleDeleteSensor(data.id); }}><DeleteIcon /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
         </div>
 
-      );
+      </div>
+
+    );
   }
 }
 
-export default IotSensorTable;
+export default withRouter(IotSensorTable);

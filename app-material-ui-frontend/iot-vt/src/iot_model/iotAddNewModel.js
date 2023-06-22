@@ -1,15 +1,20 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable no-alert */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable react/jsx-no-bind */
+
 /* eslint-disable no-console */
 /* eslint-disable react/destructuring-assignment */
 import React from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+
+// React Notification
+// import { NotificationManager } from 'react-notifications';
+// import Dashboard from '../components/dashboard';
 
 class IotAddNewModel extends React.Component {
-  constructor() {
+  constructor(props) {
     super();
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -38,11 +43,18 @@ class IotAddNewModel extends React.Component {
         iotModelName: this.state.iotModelName,
       };
 
+      // console.log(modelName);
+
       axios
         .post('http://192.168.0.194:5005/api/1.0/iotModels', modelName)
         .then((res) => {
+          // console.log(res);
+          // console.log(res.data);
+          // NotificationManager.success('You have added a new book!', 'Successful!', 2000);
           if (res.status === 201) {
             alert('Data Added Successfully..');
+            window.location.reload();
+            this.props.closeModal(false);
           }
         },
         (error) => {
@@ -75,40 +87,37 @@ class IotAddNewModel extends React.Component {
 
   render() {
     return (
-      <main style={{
-        flexGrow: 4,
-        paddingLeft: '2%',
-        paddingTop: '5%',
-        paddingRight: '2%',
-      }}
-      >
-        <div style={{ marginTop: '2%' }}>
 
-          <form onSubmit={this.handleSubmit}>
-            <div className="form-row">
+      <div style={{ marginTop: '8%', marginLeft: '5%' }}>
+        <div>
 
-              <div className="form-group col-4">
-                <label>Model Name</label>
-                <input
-                  name="iotModelName"
-                  type="text"
-                  value={this.state.iotModelName}
-                  onChange={this.handleChange}
-                  className="form-control"
-                  id="title"
-                />
+          <h3>Add New Model</h3>
 
-                <div className="text-danger">{this.state.errors.iotModelName}</div>
-              </div>
-
-            </div>
-            <input id="add-model" type="submit" value="Add Model" className="btn btn-success" />
-            <Link to="/iot_model/iotModel.js" style={{ textDecoration: 'none' }}>
-              <input type="reset" value="Cancel" className="btn btn-secondary" style={{ marginLeft: '2%' }} />
-            </Link>
-          </form>
         </div>
-      </main>
+
+        <form onSubmit={this.handleSubmit}>
+          <div className="form-row">
+
+            <div className="form-group" style={{ width: '83%' }}>
+              <label>Model Name</label>
+              <input
+                name="iotModelName"
+                type="text"
+                value={this.state.iotModelName}
+                onChange={this.handleChange}
+                className="form-control"
+                id="title"
+              />
+
+              <div className="text-danger">{this.state.errors.iotModelName}</div>
+            </div>
+
+          </div>
+          <input id="add-model" type="submit" value="Add Model" className="btn btn-success" />
+
+        </form>
+      </div>
+
     );
   }
 }

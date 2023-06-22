@@ -1,36 +1,29 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable eqeqeq */
-/* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable react/no-direct-mutation-state */
+/* eslint-disable react/sort-comp */
 /* eslint-disable no-alert */
-/* eslint-disable no-unused-expressions */
-/* eslint-disable array-callback-return */
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable no-console */
-/* eslint-disable max-len */
 /* eslint-disable react/no-unused-state */
-/* eslint-disable react/display-name */
-/* eslint-disable no-unused-vars */
-// import ResponsiveDrawer from './components/drawer.js';
 import * as React from 'react';
 import axios from 'axios';
-import { DataGrid } from '@material-ui/data-grid';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
+import Table from 'react-bootstrap/Table';
+import { Button, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
+import Modal from '@mui/material/Modal';
 
-const useStyles = makeStyles((theme) => ({
-
-  content: {
-    flexGrow: 4,
-    padding: theme.spacing(3),
-    paddingLeft: '20%',
-    paddingTop: '0%',
-
-  },
-
-}));
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  backgroundColor: '#fff',
+  border: '2px solid transperent',
+  borderRadius: '16px',
+  boxShadow: 24,
+  p: 4,
+};
 
 class Firmware extends React.Component {
   constructor(props) {
@@ -39,11 +32,7 @@ class Firmware extends React.Component {
     this.state = {
       loading: true,
       firmwareInfo: [],
-      id: '',
-      version: '',
-      firmwareName: '',
-      firmware: '',
-      addedDate: '',
+      open: '',
 
       selected_version: '',
       selected_firmware: '',
@@ -62,6 +51,18 @@ class Firmware extends React.Component {
     this.setState({ firmwareInfo: response.data, loading: false });
   }
 
+  getFirmwareDetails =async (version) => {
+    console.log(version);
+    const result = await axios.get('http://192.168.0.194:5005//api/v1/firmwares/getFirmwareDetails');
+    const filered = result.data.filter((item) => item.firmwareVersion === version);
+    // console.log(filered)
+    this.setState({
+      updated_firmware: filered[0].firmwareName,
+      updated_addedDate: filered[0].firmwareAddedDate,
+      updated_version: filered[0].firmwareVersion,
+    });
+  }
+
   onClick = () => { }
 
   handleChange = (e) => {
@@ -71,38 +72,33 @@ class Firmware extends React.Component {
   handleSubmitUpdated = (e) => {
     e.preventDefault();
     this.EditUpdate();
+
     const alertData = {
       firmware: this.state.updated_firmware,
       addedDate: this.state.updated_addedDate,
       version: this.state.updated_version,
       firmwareName: this.state.selected_firmwareName,
     };
-    axios
-      .put(`http://192.168.0.194:5005/1.0/firmware/${this.state.selected_firmwareName}`, alertData)
-      .then(
-        (res) => {
-          if (res.status === 200) {
-            alert('Alert data updated Successfully..');
-          }
-          (error) => {
-            this.handleError(error);
-            return error;
-          };
-          this.state.selected_addedDate = '';
-          this.state.selected_version = '';
-          this.state.selected_firmwareName = '';
-          this.state.selected_firmware = '';
-          this.state.updated_addedDate = '';
-          this.state.updated_firmware = '';
-          this.state.updated_version = '';
-          this.setState({ ...this.state });
-          this.componentDidMount();
-        },
-      )
+
+    axios.put(`http://192.168.0.194:5005/1.0/firmware/${this.state.selected_firmwareName}`, alertData)
+      .then((res) => {
+        if (res.status === 200) {
+          alert('Alert data updated Successfully..');
+        }
+        this.setState({
+          selected_addedDate: '',
+          selected_version: '',
+          selected_firmwareName: '',
+          selected_firmware: '',
+          updated_addedDate: '',
+          updated_firmware: '',
+          updated_version: '',
+        });
+        this.componentDidMount();
+      })
       .catch((apiError) => {
         console.log(apiError);
       });
-    // }
   };
 
   handleDelete = (event) => {
@@ -111,193 +107,135 @@ class Firmware extends React.Component {
     axios.delete(`http://192.168.0.194:5005/1.0/firmware/${firmwareToDelete}`)
       .then((res) => {
         this.componentDidMount();
-        this.state.selected_addedDate = '';
-        this.state.selected_version = '';
-        this.state.selected_firmwareName = '';
-        this.state.selected_firmware = '';
-        this.state.updated_addedDate = '';
-        this.state.updated_firmware = '';
-        this.state.updated_version = '';
-        this.setState({ ...this.state });
+        this.setState({
+          selected_addedDate: '',
+          selected_version: '',
+          selected_firmwareName: '',
+          selected_firmware: '',
+          updated_addedDate: '',
+          updated_firmware: '',
+          updated_version: '',
+        });
       });
   }
 
   EditUpdate() {
-    if (this.state.updated_firmware == '') {
+    if (this.state.updated_firmware === '') {
       this.state.updated_firmware = this.state.selected_firmware;
     }
-    if (this.state.updated_version == '') {
+    if (this.state.updated_version === '') {
       this.state.updated_version = this.state.selected_version;
     }
-    if (this.state.updated_addedDate == '') {
+    if (this.state.updated_addedDate === '') {
       this.state.updated_addedDate = this.state.selected_addedDate;
     }
   }
 
-  render() {
-    const columns = [
-      { field: 'version', headerName: 'Version', width: 180 },
-      { field: 'firmwareName', headerName: 'Firmware Name', width: 200 },
-      { field: 'addedDate', headerName: 'Added Date', width: 200 },
-    ];
+   handleOpen = () => this.setState({ open: true });
 
-    const row = [];
-    this.state.firmwareInfo.map((it) => {
-      row.push(
-        {
-          id: it.id,
-          firmwareName: it.firmwareName,
-          deviceId: it.deviceId,
-          deviceName: it.deviceName,
-          version: it.firmwareVersion,
-          addedDate: it.firmwareAddedDate,
-        },
-      );
-    });
-    console.log(row);
-    return (
+   handleClose = () => this.setState({ open: false });
 
-      <div style={{ marginTop: '8%', marginLeft: '5%' }}>
-        {/* <Dashboard /> */}
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography>
-            <h3>Firmware</h3>
-          </Typography>
+   render() {
+     const rows = this.state.firmwareInfo.map((it) => ({
+       id: it.id,
+       firmwareName: it.firmwareName,
+       deviceId: it.deviceId,
+       deviceName: it.deviceName,
+       version: it.firmwareVersion,
+       addedDate: it.firmwareAddedDate,
+     }));
 
-          <div>
-            <Link to="/iot_firmware/FirmwareAdd.js" style={{ textDecoration: 'none' }}>
-              <Button variant="contained" color="primary">
-                Add New
-              </Button>
-            </Link>
-          </div>
-        </div>
+     return (
+       <div style={{ marginTop: '8%', marginLeft: '5%' }}>
+         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+           <h3>Firmware</h3>
+           <div>
+             <Link to="/iot_firmware/FirmwareAdd.js" style={{ textDecoration: 'none' }}>
+               <Button style={{ marginBottom: '10px' }} variant="contained" color="primary">
+                 Add New
+               </Button>
+             </Link>
+           </div>
+         </div>
 
-        <div>
-          <form>
-            <div key={row.id}>
-              <div style={{
-                display: 'flex', height: 400, marginTop: '2%',
-              }}
-              >
-                <DataGrid
-                  rows={row}
-                  onRowSelected={(newSelection) => {
-                    this.setState({
-                      selected_firmwareName: newSelection.data.firmwareName,
-                      selected_addedDate: newSelection.data.addedDate,
-                      selected_version: newSelection.data.version,
-                    });
-                    console.log('selected FirmwareName: ', newSelection.data.firmwareName);
-                    console.log('selected Added Date: ', newSelection.data.addedDate);
-                    console.log('selected Version: ', newSelection.data.version);
-                  }}
-                  SelectionModelCheckbox={this.state.SelectionModelCheckbox}
-                  columns={columns}
-                  pageSize={5}
-                />
-              </div>
-            </div>
-          </form>
-        </div>
+         <Table
+           responsive
+           style={{
+             border: '1px solid #ccc', boxShadow: '2px 7px 15px 5px #80808033', borderRadius: '10px', outline: 'none',
+           }}
+         >
+           <thead>
+             <tr>
+               <th>Version</th>
+               <th>Firmware Name</th>
+               <th>Added Date</th>
+             </tr>
+           </thead>
+           <tbody>
+             {rows.map((row) => (
+               <tr key={row.id} onClick={() => { this.handleOpen(); this.getFirmwareDetails(row.version); }} style={{ cursor: 'pointer' }}>
+                 <td>{row.version}</td>
+                 <td>{row.firmwareName}</td>
+                 <td>{row.addedDate}</td>
+               </tr>
+             ))}
+           </tbody>
+         </Table>
 
-        {(() => {
-          if (this.state.selected_firmwareName === '') {
-            return <h1> </h1>;
-          }
+         <Modal
+           open={this.state.open}
+           onClose={this.handleClose}
+           aria-labelledby="modal-modal-title"
+           aria-describedby="modal-modal-description"
+         >
+           <Box sx={style}>
+             <form className="post" onSubmit={this.handleSubmitUpdated}>
+               <h3>Edit Firmware</h3>
 
-          return (
+               <div style={{ marginLeft: '-4%' }}>
+                 <div className="form-group col-6">
+                   <label>firmware Name</label>
+                   <input
+                     style={{ width: '18rem' }}
+                     name="updated_firmware"
+                     type="text"
+                     value={this.state.updated_firmware}
+                     onChange={this.handleChange}
+                     className="form-control"
+                   />
+                 </div>
 
-            <div>
-              <form className="post" onSubmit={this.handleSubmitUpdated}>
-                <div className="form-row">
-                  <Typography variant="h5" noWrap component="div" style={{ paddingBottom: '2%' }}>
-                    Edit firmware
-                  </Typography>
-                  <div className="form-group col-10" />
+                 <div className="form-group col-6">
+                   <label>Version</label>
+                   <input
+                     style={{ width: '18rem' }}
+                     name="updated_version"
+                     type="text"
+                     value={this.state.updated_version}
+                     onChange={this.handleChange}
+                     className="form-control"
+                   />
+                 </div>
 
-                  <div className="form-group col-3">
-                    <label>Old firmware Name</label>
-                    <input
-                      name="selected_firmwareName"
-                      type="text"
-                      value={this.state.selected_firmwareName}
-                      onChange={this.handleChange}
-                      className="form-control"
-                      disabled
-                    />
-                  </div>
-
-                  <div className="form-group col-3">
-                    <label>New firmware Name</label>
-                    <input
-                      name="updated_firmware"
-                      type="text"
-                      value={this.state.updated_firmwareName}
-                      onChange={this.handleChange}
-                      className="form-control"
-                    />
-                  </div>
-
-                  <div className="form-group col-3">
-                    <label>Old version</label>
-                    <input
-                      name="selected_version"
-                      type="text"
-                      value={this.state.selected_version}
-                      onChange={this.handleChange}
-                      className="form-control"
-                      disabled
-                    />
-                  </div>
-
-                  <div className="form-group col-3">
-                    <label>Updated version</label>
-                    <input
-                      name="updated_version"
-                      type="text"
-                      value={this.state.updated_version}
-                      onChange={this.handleChange}
-                      className="form-control"
-                    />
-                  </div>
-
-                  <div className="form-group col-3">
-                    <label>Old addedDate</label>
-                    <input
-                      name="selected_addedDate"
-                      type="text"
-                      value={this.state.selected_addedDate}
-                      onChange={this.handleChange}
-                      className="form-control"
-                      disabled
-                    />
-
-                  </div>
-
-                  <div className="form-group col-3">
-                    <label>Updated addedDate</label>
-                    <input
-                      name="updated_addedDate"
-                      type="int"
-                      value={this.state.updated_addedDate}
-                      onChange={this.handleChange}
-                      className="form-control"
-                    />
-
-                  </div>
-
-                </div>
-                <input type="submit" value="Edit Alert" className="btn btn-success" />
-              </form>
-
-            </div>
-          );
-        })()}
-
-      </div>
-    );
-  }
+                 <div className="form-group col-6">
+                   <label>Added Date</label>
+                   <input
+                     style={{ width: '18rem' }}
+                     name="updated_addedDate"
+                     type="int"
+                     value={this.state.updated_addedDate}
+                     onChange={this.handleChange}
+                     className="form-control"
+                   />
+                 </div>
+               </div>
+               <input type="submit" value="Edit Firmware" className="btn btn-success" />
+             </form>
+           </Box>
+         </Modal>
+       </div>
+     );
+   }
 }
 
 export default Firmware;

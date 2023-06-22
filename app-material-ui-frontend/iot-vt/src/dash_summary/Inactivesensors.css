@@ -1,0 +1,32 @@
+.order-card {
+    color: #fff;
+}
+
+.bg-c-green {
+    background: linear-gradient(45deg,hsl(168, 76%, 35%),#56e5c8);
+}
+
+.bg-c-red {
+    background: linear-gradient(45deg,#e53250,#e17c8d);
+}
+
+
+.cards {
+    width: 13rem;
+    border-radius: 5px;
+    box-shadow: 8px 10px 20px 5px rgba(44, 43, 43, 0.16);
+    border: none;
+    -webkit-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+    margin: 0rem 1rem 1rem 0rem;
+}
+
+.card-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.card .card-block {
+    padding: .7rem;
+}

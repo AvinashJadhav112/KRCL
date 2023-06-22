@@ -13,7 +13,10 @@
 import * as React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
+// import CustomerAdd from '.page/CustomerAdd.js'
+
 import { Link } from 'react-router-dom';
+// import Dashboard from '../components/dashboard';
 
 const useStyles = makeStyles((theme) => ({
 
@@ -58,6 +61,7 @@ class FirmwareEdit extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.state = {
       loading: true,
+
       version: '',
       firmwareName: '',
       status: '',
@@ -141,6 +145,10 @@ class FirmwareEdit extends React.Component {
          </Typography>
        </div>
 
+       {/* <div>
+         <Dashboard />
+       </div> */}
+
        <form className="post" onSubmit={this.handleSubmit}>
          <div className="form-row">
 
@@ -149,6 +157,7 @@ class FirmwareEdit extends React.Component {
              <input
                name="firmwareName"
                type="text"
+      // value={this.state.Device_Name}
                onChange={this.handleChange}
                className="form-control"
              />
@@ -163,6 +172,7 @@ class FirmwareEdit extends React.Component {
              <input
                name="version"
                type="number"
+      // value={this.state.buildingName}
                onChange={this.handleChange}
                className="form-control"
              />
@@ -177,6 +187,7 @@ class FirmwareEdit extends React.Component {
            <input
              name="firmwareApp1"
              type="file"
+      // value={this.state.buildingName}
              onChange={this.handleChange}
              className="form-control"
            />
@@ -188,6 +199,7 @@ class FirmwareEdit extends React.Component {
            <input
              name="firmwareApp2"
              type="file"
+      // value={this.state.buildingName}
              onChange={this.handleChange}
              className="form-control"
            />

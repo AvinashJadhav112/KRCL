@@ -1,47 +1,23 @@
-/* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-cycle */
-/* eslint-disable react/no-direct-mutation-state */
-/* eslint-disable no-unused-expressions */
-/* eslint-disable jsx-a11y/heading-has-content */
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-plusplus */
-/* eslint-disable eqeqeq */
-/* eslint-disable array-callback-return */
-/* eslint-disable react/jsx-no-undef */
-/* eslint-disable no-undef */
-/* eslint-disable react/no-array-index-key */
-/* eslint-disable max-len */
-/* eslint-disable react/no-access-state-in-setstate */
-/* eslint-disable react/destructuring-assignment */
-/* eslint-disable no-console */
-/* eslint-disable react/sort-comp */
-/* eslint-disable global-require */
-/* eslint-disable react/no-unused-state */
-/* eslint-disable no-unused-vars */
-/* eslint-disable react/button-has-type */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-/* eslint-disable no-alert */
-/* eslint-disable camelcase */
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import * as React from 'react';
-import Typography from '@material-ui/core/Typography';
+/* eslint-disable no-shadow */
+/* eslint-disable no-alert */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars */
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { Link } from 'react-router-dom';
 import Select from 'react-select';
 import axios from 'axios';
-import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import EditIcon from '@material-ui/icons/Edit';
-import { DataGrid } from '@material-ui/data-grid';
-import Tooltip from '@material-ui/core/Tooltip';
-import { Link } from 'react-router-dom';
+import DeleteIcon from '@material-ui/icons/Delete';
 import LoadingSpinner from '../components/loadingSpinner';
 
 const useStyles = makeStyles((theme) => ({
-
   content: {
     flexGrow: 4,
     padding: theme.spacing(1),
-    paddingLeft: '20%',
+    paddingLeft: '15%',
     paddingTop: '0%',
   },
   container: {
@@ -53,501 +29,287 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: 200,
-    paddingTop: '2%',
+
   },
   table: {
-    Width: 500,
+    width: 500,
   },
+
+  dateInput: {
+    width: 150,
+  },
+
+  timeInput: {
+    width: 120,
+  },
+
 }));
-class EquipmentWiseAlert extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
 
-      selectOptions: [],
-      deviceName: '',
-      id: '',
+const EquipmentWiseAlert = () => {
+  const classes = useStyles();
+  const [selectOptions, setSelectOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [showAlerts, setShowAlerts] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [selectedAlert, setSelectedAlert] = useState({});
+  const [updatedAlert, setUpdatedAlert] = useState({});
+  const [deviceName, setDeviceName] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
 
-      startDate: '',
-
-      someDate: '',
-      startTime: '',
-      endTime: '',
-
-      loading: false,
-      sensorId: '',
-      rawValue: '',
-
-      showAlerts: [],
-      data: [],
-
-      selectValue: [],
-      errors: {},
-      Deviceid: [],
-
-      Featurename: '',
-
-      EditAlertDescription: '',
-      EditEmpId: '',
-
-      name: '',
-      username: '',
-
-      selected_sensorId: '',
-      selected_deviceId: '',
-      selected_timestamp: '',
-      selected_processedValue: '',
-      selected_alertCriticality: '',
-      selected_employeeName: '',
-      selected_alertStatus: '',
-      selected_alertDescription: '',
-      selected_id: '',
-
-      updated_employeeName: '',
-      updated_alertStatus: '',
-      updated_alertDescription: '',
-
+  useEffect(() => {
+    const getOptions = async () => {
+      try {
+        const res = await axios.get('http://192.168.0.194:5005/api/1.0/devices');
+        const options = res.data.map((d) => ({
+          value: d.id,
+          label: d.deviceName,
+        }));
+        setSelectOptions(options);
+      } catch (error) {
+        handleErrors(error);
+      }
     };
-    this.onSubmit = this.onSubmit.bind(this);
-  }
+    getOptions();
+  }, []);
 
-  async getOptions() {
-    const res = await axios.get('http://192.168.0.194:5005/api/1.0/devices');
-    const { data } = res;
-
-    const options = data.map((d) => ({
-      value: d.id,
-      label: d.deviceName,
-    }));
-
-    this.setState({ selectOptions: options });
-  }
-
-  handleChangeDropdown = (e) => {
-    this.setState({ deviceName: e.label, id: e.value });
+  const handleChangeDropdown = (selectedOption) => {
+    setDeviceName(selectedOption.label);
+    setSelectedAlert({ ...selectedAlert, deviceId: selectedOption.value });
   };
 
-  componentDidMount() {
-    this.getOptions();
-  }
-
-   handleChange = (e) => {
-     this.setState({ [e.target.name]: e.target.value });
-   }
-
-   handleErrors(error) {
-     if (error.response && error.response.status === 404) {
-       alert('Not found');
-     } else if (error.response && error.response.status === 409) {
-       alert('request conflicts');
-     } else if (error.response && error.response.status === 500) {
-       alert('Internal server error');
-     } else if (error.response && error.response.status === 400) {
-       alert('Bad Request');
-     } else if (error.response && error.response.status === 403) {
-       alert('Forbidden');
-     } else if (error.response && error.response.status === 401) {
-       alert('Unauthorized');
-     }
-   }
-
-   handleError(error) {
-     if (error.response && error.response.status === 409) {
-       alert('request conflicts');
-     } else if (error.response && error.response.status === 404) {
-       alert('Not found');
-     } else if (error.response && error.response.status === 500) {
-       alert('Internal server error');
-     } else if (error.response && error.response.status === 400) {
-       alert('Bad Request');
-     } else if (error.response && error.response.status === 403) {
-       alert('Forbidden');
-     } else if (error.response && error.response.status === 401) {
-       alert('Unauthorized');
-     }
-   }
-
-   async onSubmit(e) {
-     e.preventDefault();
-     if (this.validate()) {
-       const url = `http://192.168.0.194:5005/api/1.0/alerts/device/${this.state.id}?start=${this.state.startDate}T${this.state.startTime}:00Z&end=${this.state.startDate}T${this.state.endTime}:00Z`;
-       this.setState({ loading: true }, () => {
-         axios.get(url)
-           .then((response) => {
-             this.setState({ loading: false, data: [...response.data] });
-             if (response.data == '') {
-               alert('No Alerts found for selected device in opted time bound');
-             }
-             this.setState({ showAlerts: response.data, loading: false });
-           },
-           (error) => {
-             this.handleErrors(error);
-             return error;
-           });
-       });
-     }
-   }
-
-   onClick = () => { }
-
-    handleSubmitUpdated = (e) => {
-      e.preventDefault();
-      this.EditUpdate();
-      const alertData = {
-        sensorId: this.state.selected_sensorId,
-        deviceId: this.state.selected_deviceId,
-        timestamp: this.state.selected_timestamp,
-        processedValue: this.state.selected_processedValue,
-        alertCriticality: this.state.selected_alertCriticality,
-        alertDescription: this.state.updated_alertDescription,
-        employeeName: this.state.updated_employeeName,
-        alertStatus: this.state.updated_alertStatus,
-      };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validate()) {
+      const url = `http://192.168.0.194:5005/api/1.0/alerts/device/${selectedAlert.deviceId}?start=${startDate}T${startTime}:00Z&end=${startDate}T${endTime}:00Z`;
+      setLoading(true);
       axios
-        .put(`http://192.168.0.194:5005/api/1.0/alerts/${this.state.selected_id}`, alertData)
-        .then(
-          (res) => {
-            if (res.status === 200 || res.status === 201) {
-              alert('Alert data Updated Successfully..');
-            }
-
-            this.state.selected_sensorId = '';
-            this.state.selected_deviceId = '';
-            this.state.selected_timestamp = '';
-            this.state.selected_processedValue = '';
-            this.state.selected_alertCriticality = '';
-            this.state.selected_employeeName = '';
-            this.state.selected_alertStatus = '';
-            this.state.selected_alertDescription = '';
-            this.state.selected_id = '';
-            this.state.updated_employeeName = '';
-            this.state.updated_alertStatus = '';
-            this.state.updated_alertDescription = '';
-            this.setState({ ...this.state });
-            this.componentDidMount();
-          },
-
-          (error) => {
-            this.handleError(error);
-            return error;
-          },
-        )
-        .catch((apiError) => {
-          // console.log(apiError);
+        .get(url)
+        .then((response) => {
+          setLoading(false);
+          setShowAlerts(response.data);
+          if (response.data.length === 0) {
+            alert('No Alerts found for selected device in opted time bound');
+          }
+        })
+        .catch((error) => {
+          handleErrors(error);
         });
-    };
+    }
+  };
 
-    EditUpdate() {
-      if (this.state.updated_alertDescription == '') {
-        this.state.updated_alertDescription = this.state.selected_alertDescription;
-      }
-      if (this.state.updated_alertStatus == '') {
-        this.state.updated_alertStatus = this.state.selected_alertStatus;
-      }
-      if (this.state.updated_employeeName == '') {
-        this.state.updated_employeeName = this.state.selected_employeeName;
-      }
+  const handleDelete = (id) => {
+    axios
+      .delete(`http://192.168.0.194:5005/api/1.0/alerts/${id}`)
+      .then(() => {
+        setLoading(false);
+        setShowAlerts(showAlerts.filter((alert) => alert.id !== id));
+        alert('Alert deleted successfully');
+      })
+      .catch((error) => {
+        handleErrors(error);
+      });
+  };
+
+  const handleSubmitUpdated = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    axios
+      .put(`http://192.168.0.194:5005/api/1.0/alerts/${selectedAlert.id}`, updatedAlert)
+      .then(() => {
+        setLoading(false);
+        alert('Alert updated successfully');
+      })
+      .catch((error) => {
+        handleErrors(error);
+      });
+  };
+
+  const handleErrors = (error) => {
+    if (error.response) {
+      setErrors({
+        ...errors,
+        message: error.response.data.message,
+        status: error.response.status,
+      });
+    } else {
+      setErrors({
+        ...errors,
+        message: 'Something went wrong. Please try again later.',
+        status: '',
+      });
+    }
+    setLoading(false);
+  };
+
+  const validate = () => {
+    const errors = {};
+    let isValid = true;
+
+    if (startDate.trim() === '') {
+      errors.startDate = 'Start Date is required';
+      isValid = false;
     }
 
-    validate() {
-      const errors = {};
-      let isValid = true;
-
-      if (!this.state.deviceName) {
-        isValid = false;
-        errors.deviceName = 'Please select device';
-      }
-      if (!this.state.startDate) {
-        isValid = false;
-        errors.startDate = 'Please select start date';
-      }
-      if (!this.state.startTime) {
-        isValid = false;
-        errors.startTime = 'Please select start date';
-      }
-      if (!this.state.endTime) {
-        isValid = false;
-        errors.endTime = 'Please select start date';
-      }
-
-      this.setState({
-        errors,
-      });
-
-      return isValid;
+    if (startTime.trim() === '') {
+      errors.startTime = 'Start Time is required';
+      isValid = false;
     }
 
-    render() {
-      const { selectValue } = this.state;
+    if (endTime.trim() === '') {
+      errors.endTime = 'End Time is required';
+      isValid = false;
+    }
 
-      const { startDate, startTime, endTime } = this.state;
+    setErrors(errors);
+    return isValid;
+  };
 
-      const { data, loading } = this.state;
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSelectedAlert((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
 
-      const alertStatus = [
-        'Resolved',
-        'Unresolved',
-      ];
+  const handleUpdatedAlertChange = (e) => {
+    const { name, value } = e.target;
+    setUpdatedAlert((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
 
-      const columns = [
-        { field: 'sensorName', headerName: 'Sensor Name', width: 200 },
-        { field: 'timestamp', headerName: 'Time Stamp', width: 250 },
-        { field: 'value', headerName: 'Value', width: 200 },
-        { field: 'employeeName', headerName: 'Emp Name', width: 150 },
-        { field: 'alertStatus', headerName: 'Status', width: 130 },
-        { field: 'alertCriticality', headerName: 'Criticality', width: 120 },
-        { field: 'alertDescription', headerName: 'Alert Description', width: 300 },
-        {
-          field: 'editButton',
-          headerName: 'Edit',
-          sortable: false,
-          width: 100,
-          renderCell: () => {
-            const onClick = () => {
+  const handleEdit = (row) => {
+    setSelectedAlert(row);
+    setUpdatedAlert(row);
+  };
 
-            };
+  return (
+    <div className={classes.content} style={{ marginTop: '6%', marginRight: '20%' }}>
+      <h4>Equipment Wise Alerts</h4>
+      <br />
 
-            return (
-              <Button onClick={onClick}>
-                <Link to="#">
-                  <Tooltip title="Currently edit feature is disabled">
-                    <EditIcon />
-                  </Tooltip>
-                </Link>
-              </Button>
-            );
-          },
-        },
-
-      ];
-
-      const row = [];
-      this.state.showAlerts.map((it) => {
-        row.push(
-          {
-            id: it.id,
-            sensorId: it.sensorId,
-            sensorName: it.sensorName,
-            deviceId: it.deviceId,
-            timestamp: it.timestamp,
-            value: it.processedValue,
-            alertDescription: it.alertDescription,
-            alertCriticality: it.alertCriticality,
-            alertStatus: it.alertStatus,
-            employeeName: it.employeeName,
-
-          },
-        );
-      });
-
-      const values = {
-        startDate: '',
-        startTime: '',
-        endTime: '',
-      };
-      return (
-        <div style={{ flexGrow: 4, paddingLeft: '2%', paddingTop: '7%' }}>
-
-          <Typography variant="h4" noWrap component="div">
-            Equipment Wise Alerts
-          </Typography>
-
-          <div style={{ paddingTop: '' }}>
-            <form style={{ marginLeft: '2%', marginTop: '2%' }} onSubmit={this.onSubmit}>
-              <div className="form-row">
-
-                <div className="form-group col">
-                  <TextField name="startDate" label="Date" id="time" InputLabelProps={{ shrink: true, required: true }} type="date" onChange={this.handleChange} value={startDate} defaultValue={values.startDate} />
-                  <div className="text-danger">
-                    {this.state.errors.startDate}
-                  </div>
-                </div>
-
-                <div className="form-group col">
-                  <TextField name="startTime" id="time" label="Start Time" type="time" onChange={this.handleChange} value={startTime} defaultValue="12:30" InputLabelProps={{ shrink: true }} inputProps={{ step: 300 }} style={{ paddingLeft: '5%' }} />
-                  <div className="text-danger">
-                    {this.state.errors.startTime}
-                  </div>
-                </div>
-
-                <div className="form-group col">
-                  <TextField name="endTime" id="time" label="End Time " type="time" onChange={this.handleChange} value={endTime} defaultValue="15:30" InputLabelProps={{ shrink: true }} inputProps={{ step: 300 }} style={{ paddingLeft: '5%', paddingRight: '5%' }} />
-                  <div className="text-danger">
-                    {this.state.errors.endTime}
-                  </div>
-                </div>
-
-                <div className="form-group col-4">
-                  <div style={{ paddingTop: '3%' }}>
-                    <Select
-                      options={this.state.selectOptions}
-                      onChange={this.handleChangeDropdown}
-                    />
-                    <div className="text-danger">
-                      {this.state.errors.deviceName}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="form-group col">
-                  <button onClick={this.onClick} value="Submit" className="btn btn-success" style={{ marginLeft: '33%', paddingBottom: '8%' }}>
-                    Load Data
-                    {loading ? <LoadingSpinner /> : <h5 />}
-                  </button>
-
-                </div>
-
-                <div className="form-group col" />
-
-              </div>
-
-            </form>
-
+      <div>
+        <form className="container" noValidate onSubmit={handleSubmit}>
+          <div className="form-group">
+            <Select
+              options={selectOptions}
+              className={classes.textField}
+              placeholder="Select Device"
+              onChange={handleChangeDropdown}
+            />
           </div>
-          {(() => {
-            if (this.state.deviceName === '') {
-              return <h1> </h1>;
-            }
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginLeft: '0.5rem' }}>
+            <div className="form-group" style={{ width: '12.5rem' }}>
+              <label htmlFor="startDate">Start Date</label>
+              <input
+                id="startDate"
+                name="startDate"
+                className={`form-control ${errors.startDate ? 'is-invalid' : ''}`}
+                type="date"
+                defaultValue=""
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+              {errors.startDate && (
+              <div className="invalid-feedback">{errors.startDate}</div>
+              )}
+            </div>
 
-            return (
+            <div className="form-group" style={{ width: '12.5rem' }}>
+              <label htmlFor="startTime">Start Time</label>
+              <input
+                id="startTime"
+                name="startTime"
+                className={`form-control ${errors.startTime ? 'is-invalid' : ''}`}
+                type="time"
+                defaultValue=""
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+              />
+              {errors.startTime && (
+              <div className="invalid-feedback">{errors.startTime}</div>
+              )}
+            </div>
 
-              <div key={row.id}>
-                <div style={{
-                  height: 400, width: '100%',
-                }}
-                >
-                  <DataGrid
-                    rows={row}
-                    columns={columns}
-                    pageSize={10}
-                    icon
-                    SettingsApplicationsOutlinedIcon
-                    checkboxSelection
-                    onRowSelected={(newSelection) => {
-                      this.setState({
-                        selected_sensorId: newSelection.data.sensorId,
-                        selected_deviceId: newSelection.data.deviceId,
-                        selected_timestamp: newSelection.data.timestamp,
-                        selected_processedValue: newSelection.data.value,
-                        selected_alertCriticality: newSelection.data.alertCriticality,
-                        selected_alertDescription: newSelection.data.alertDescription,
-                        selected_employeeName: newSelection.data.employeeName,
-                        selected_alertStatus: newSelection.data.alertStatus,
-                        selected_id: newSelection.data.id,
-                      });
-                    }}
-                    SelectionModelCheckbox={this.state.SelectionModelCheckbox}
-                  />
-                  <br />
-                </div>
-              </div>
+            <div className="form-group" style={{ width: '12.5rem' }}>
+              <label htmlFor="endTime">End Time</label>
+              <input
+                id="endTime"
+                name="endTime"
+                className={`form-control ${errors.endTime ? 'is-invalid' : ''}`}
+                type="time"
+                defaultValue=""
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+              />
+              {errors.endTime && (
+              <div className="invalid-feedback">{errors.endTime}</div>
+              )}
+            </div>
 
-            );
-          })()}
+            <button className="btn btn-primary" style={{ height: '2.5rem', marginTop: '1.7rem' }} type="submit">
+              Show Alerts
+            </button>
+          </div>
 
-          {(() => {
-            if (this.state.selected_sensorId === '') {
-              return <h1> </h1>;
-            }
+        </form>
 
-            return (
+      </div>
 
-              <div>
-                <form className="post" onSubmit={this.handleSubmitUpdated}>
-                  <div className="form-row">
-                    <Typography variant="h5" noWrap component="div" style={{ paddingBottom: '2%' }}>
-                      Edit Alert
-                    </Typography>
-                    <div className="form-group col-6" />
+      <br />
 
-                    <div className="form-group col-6">
-                      <label>Old Alert Description</label>
-                      <input
-                        name="selected_alertDescription"
-                        type="text"
-                        value={this.state.selected_alertDescription}
-                        onChange={this.handleChange}
-                        className="form-control"
-                        disabled
-                      />
-                    </div>
-
-                    <div className="form-group col-6">
-                      <label>New Alert Description</label>
-                      <input
-                        name="updated_alertDescription"
-                        type="text"
-                        value={this.state.updated_alertDescription}
-                        onChange={this.handleChange}
-                        className="form-control"
-                      />
-                    </div>
-
-                    <div className="form-group col-6">
-                      <label>Old Alert Status</label>
-                      <input
-                        name="selected_alertStatus"
-                        type="text"
-                        value={this.state.selected_alertStatus}
-                        onChange={this.handleChange}
-                        className="form-control"
-                        disabled
-                      />
-                    </div>
-
-                    <div className="form-group col-6">
-                      <label>Updated Alert Status</label>
-                      <select
-                        name="updated_alertStatus"
-                        onChange={this.handleChange}
-                        className="form-control"
-                      >
-                        <option value={this.state.updated_alertStatus} />
-                        {alertStatus.map((name) => (
-                          <option key={name} value={name}>
-                            {name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="form-group col-6">
-                      <label>Old Employee Name</label>
-                      <input
-                        name="selected_employeeName"
-                        type="text"
-                        value={this.state.selected_employeeName}
-                        onChange={this.handleChange}
-                        className="form-control"
-                        disabled
-                      />
-
-                    </div>
-
-                    <div className="form-group col-6">
-                      <label>Updated Employee Name</label>
-                      <input
-                        name="updated_employeeName"
-                        type="int"
-                        value={this.state.updated_employeeName}
-                        onChange={this.handleChange}
-                        className="form-control"
-                      />
-
-                    </div>
-
-                  </div>
-                  <input type="submit" value="Edit Alert" className="btn btn-success" />
-                </form>
-
-              </div>
-
-            );
-          })()}
-
+      {loading ? (
+        <LoadingSpinner />
+      ) : (
+        <div className="table-responsive" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+          <table className="table" style={{ border: '1px solid #ccc' }}>
+            <thead>
+              <tr>
+                <th>Sensor Name</th>
+                <th>Processed Value</th>
+                <th>Criticality</th>
+                <th>Employee Name</th>
+                <th>Status</th>
+                <th>Description</th>
+                <th>Timestamp</th>
+                <th>Edit</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {showAlerts.map((alert) => (
+                <tr key={alert.id}>
+                  <td>{alert.sensorName}</td>
+                  <td>{alert.processedValue}</td>
+                  <td>{alert.alertCriticality}</td>
+                  <td>{alert.employeeName}</td>
+                  <td>{alert.alertStatus}</td>
+                  <td>{alert.alertDescription}</td>
+                  <td>{alert.timestamp}</td>
+                  <td>
+                    <Button component={Link} to={`/alert_equipment_wise/EquipmentAlertEdit.js/${alert.id}`}>
+                      <EditIcon />
+                    </Button>
+                  </td>
+                  <td>
+                    <Button type="submit" onClick={() => handleDelete(alert.id)}>
+                      <DeleteIcon />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      );
-    }
-}
+
+      )}
+
+    </div>
+  );
+};
 
 export default EquipmentWiseAlert;

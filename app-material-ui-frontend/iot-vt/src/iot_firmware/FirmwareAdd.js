@@ -14,6 +14,7 @@
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable no-lone-blocks */
 /* eslint-disable react/button-has-type */
+
 /* eslint-disable no-alert */
 /* eslint-disable react/jsx-props-no-multi-spaces */
 /* eslint-disable no-unused-vars */
@@ -22,42 +23,39 @@ import * as React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios';
+import Select from 'react-select';
+// import CustomerAdd from '.page/CustomerAdd.js'
+
 import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
-
   content: {
     flexGrow: 4,
     padding: theme.spacing(3),
     paddingLeft: '20%',
     paddingTop: '0%',
-
   },
   root: {
     '& .MuiTextField-root': {
       margin: theme.spacing(1),
-      width: '54ch',
+      width: '100%',
       paddingBottom: '2%',
     },
   },
   root2: {
     '& > *': {
       margin: theme.spacing(1),
-      width: '40ch',
+      width: '100%',
       paddingBottom: '2%',
       margiLeft: '20%',
     },
   },
-
-  FormControlLabel:
-  {
+  FormControlLabel: {
     flexGrow: 4,
     padding: theme.spacing(3),
     paddingLeft: '50%',
     paddingTop: '0%',
-
   },
-
 }));
 
 class FirmwareAdd extends React.Component {
@@ -67,7 +65,6 @@ class FirmwareAdd extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.state = {
       loading: true,
-
       firmwareVersion: '',
       firmwareName: '',
       status: '',
@@ -84,19 +81,20 @@ class FirmwareAdd extends React.Component {
       selectOptions: [],
       deviceName: '',
       id: '',
-
     };
   }
 
   async componentDidMount() {
     this.getOptions();
-    const { data } = await axios.get('http://192.168.0.194:5005/api/v1/firmwares/getFirmwareDetails');
+    const { data } = await axios.get(
+      'http://192.168.0.194:5005/api/v1/firmwares/getFirmwareDetails',
+    );
     this.state.firmwareList = data;
   }
 
   handleError(error) {
     if (error.response && error.response.status === 409) {
-      alert('There is already a firmware with same name..');
+      alert('There is already a firmware with the same name.');
     } else if (error.response && error.response.status === 404) {
       alert('Firmware not found');
     } else if (error.response && error.response.status === 500) {
@@ -126,7 +124,7 @@ class FirmwareAdd extends React.Component {
     this.setState({
       [e.target.name]: e.target.value,
     });
-  }
+  };
 
   handleSubmit(e) {
     e.preventDefault();
@@ -134,7 +132,10 @@ class FirmwareAdd extends React.Component {
     if (this.validate()) {
       let firmwareTobeStored = true;
       this.state.firmwareList.map((firmware) => {
-        if (firmware.firmwareName === this.state.firmwareName || firmware.firmwareVersion === this.state.firmwareVersion) {
+        if (
+          firmware.firmwareName === this.state.firmwareName
+          || firmware.firmwareVersion === this.state.firmwareVersion
+        ) {
           firmwareTobeStored = false;
         }
       });
@@ -146,6 +147,7 @@ class FirmwareAdd extends React.Component {
           firmwareName: this.state.firmwareName,
           firmwareVersion: this.state.firmwareVersion,
           firmwareAddedDate: this.state.firmwareAddedDate,
+          // deviceName: this.state.deviceName,
         };
         formData.append('bank1 image', data.firmwareApp1);
         formData.append('bank2 image', data.firmwareApp2);
@@ -166,38 +168,48 @@ class FirmwareAdd extends React.Component {
             'content-type': `multipart/form-data; boundary=${formData.boundary}`,
           },
         };
-        axios.post(`http://192.168.0.194:5005/api/v1/firmwares/${this.state.firmwareVersion}`, formData, config)
-          .then((res) => {
-            console.log(res.data);
-            console.log(formData);
-            if (res.status === 204 || res.status === 200 || res.status === 201) {
-              alert('Firmware Uploaded successfully..');
-            }
-          },
-          (error) => {
-            this.handleErrors(error);
-            return error;
-          });
+        axios
+          .post(
+            `http://192.168.0.194:5005/api/v1/firmwares/${this.state.firmwareVersion}`,
+            formData,
+            config,
+          )
+          .then(
+            (res) => {
+              console.log(res.data);
+              console.log(formData);
+              if (res.status === 204 || res.status === 200 || res.status === 201) {
+                alert('Firmware uploaded successfully.');
+              }
+            },
+            (error) => {
+              this.handleErrors(error);
+              return error;
+            },
+          );
       } else {
         this.state.firmwareList.map((firmware) => {
-          if (firmware.firmwareName === this.state.firmwareName && firmware.firmwareVersion === this.state.firmwareVersion) {
+          if (
+            firmware.firmwareName === this.state.firmwareName
+            && firmware.firmwareVersion === this.state.firmwareVersion
+          ) {
             this.setState({
               firmwareName: '',
               firmwareVersion: '',
             });
-            alert('Firmware Name and Firmware Version Already exists, please try with different Name and Version');
-          } else
-          if (firmware.firmwareName === this.state.firmwareName) {
+            alert(
+              'Firmware Name and Firmware Version already exist, please try with a different Name and Version.',
+            );
+          } else if (firmware.firmwareName === this.state.firmwareName) {
             this.setState({
               firmwareName: '',
             });
-            alert('Firmware Name Already exists, please try with different Name');
-          } else
-          if (firmware.firmwareVersion === this.state.firmwareVersion) {
+            alert('Firmware Name already exists, please try with a different Name.');
+          } else if (firmware.firmwareVersion === this.state.firmwareVersion) {
             this.setState({
               firmwareVersion: '',
             });
-            alert('Firmware Version Already exists, please try with different Version');
+            alert('Firmware Version already exists, please try with a different Version.');
           }
         });
       }
@@ -240,25 +252,25 @@ class FirmwareAdd extends React.Component {
 
     if (!this.state.firmwareName) {
       isValid = false;
-      errors.firmwareName = 'Please enter Firmware';
+      errors.firmwareName = 'Please enter Firmware Name.';
     }
 
     if (!this.state.firmwareVersion) {
       isValid = false;
-      errors.firmwareVersion = 'Please enter version';
+      errors.firmwareVersion = 'Please enter Version.';
     }
     if (!this.state.firmwareAddedDate) {
       isValid = false;
-      errors.firmwareAddedDate = 'Please enter Date';
+      errors.firmwareAddedDate = 'Please enter Date.';
     }
     if (!this.state.file) {
       isValid = false;
-      errors.file = 'Please select file';
+      errors.file = 'Please select a file.';
     }
 
     if (!this.state.file1) {
       isValid = false;
-      errors.file1 = 'Please select file';
+      errors.file1 = 'Please select a file.';
     }
 
     this.setState({
@@ -271,17 +283,16 @@ class FirmwareAdd extends React.Component {
   render() {
     return (
       <div style={{
-        flexGrow: 4, paddingLeft: '20px', paddingTop: '0%', marginTop: '6%',
+        marginTop: '8%', marginLeft: '27%', border: '1px solid #ccc', padding: '2%', borderRadius: '10px', width: '50%',
       }}
       >
-
-        <Typography variant="h4" noWrap component="div">
-          Firmware/Add Firmware
-        </Typography>
+        <div>
+          <h3>Firmware/Add Firmware</h3>
+        </div>
 
         <form className="post" onSubmit={this.handleSubmit}>
           <div className="form-row" style={{ paddingLeft: '1%' }}>
-            <div className="form-group col-3">
+            <div className="form-group col-12">
               <label>Firmware Name</label>
               <input
                 name="firmwareName"
@@ -290,13 +301,10 @@ class FirmwareAdd extends React.Component {
                 onChange={this.handleChange}
                 className="form-control"
               />
-              <div className="text-danger">
-                {this.state.errors.firmwareName}
-              </div>
-
+              <div className="text-danger">{this.state.errors.firmwareName}</div>
             </div>
 
-            <div className="form-group col-3">
+            <div className="form-group col-12">
               <label>Version</label>
               <input
                 name="firmwareVersion"
@@ -305,13 +313,11 @@ class FirmwareAdd extends React.Component {
                 onChange={this.handleChange}
                 className="form-control"
               />
-              <div className="text-danger">
-                {this.state.errors.firmwareVersion}
-              </div>
+              <div className="text-danger">{this.state.errors.firmwareVersion}</div>
             </div>
 
-            <div className="form-group col-3">
-              <label> Add Date</label>
+            <div className="form-group col-12">
+              <label>Add Date</label>
               <input
                 name="firmwareAddedDate"
                 type="date"
@@ -319,12 +325,10 @@ class FirmwareAdd extends React.Component {
                 onChange={this.handleChange}
                 className="form-control"
               />
-              <div className="text-danger">
-                {this.state.errors.firmwareAddedDate}
-              </div>
+              <div className="text-danger">{this.state.errors.firmwareAddedDate}</div>
             </div>
           </div>
-          <div className="form-group col-5">
+          <div className="form-group col-12">
             <label>Firmware Bank 1 </label>
             <input
               name="firmwareApp1"
@@ -334,35 +338,32 @@ class FirmwareAdd extends React.Component {
               onChange={this.handleFileInputChange}
               className="form-control"
             />
-            <div className="text-danger">
-              {this.state.errors.file}
-            </div>
+            <div className="text-danger">{this.state.errors.file}</div>
           </div>
 
-          <div className="form-group col-5">
+          <div className="form-group col-12">
             <label>Firmware Bank 2 </label>
             <input
               name="firmwareApp2"
               type="file"
               accept=".bin"
+              key="bank2 image"
               onChange={this.handleFileInputChange1}
               className="form-control"
             />
-            <div className="text-danger">
-              {this.state.errors.file1}
-            </div>
+            <div className="text-danger">{this.state.errors.file1}</div>
           </div>
 
-          <div className="form-group col-5">
-            <button type="submit" className="btn btn-primary mr-2">Submit</button>
-            <Link to="Firmware.js">
-              <button className="btn btn-secondary">Cancel</button>
-            </Link>
+          <div className="form-group col-12">
+            <button type="submit" className="btn btn-primary">
+              Upload Firmware
+            </button>
+            <button onClick={() => window.history.go(-1)} className="btn btn-secondary ml-2">
+              Cancel
+            </button>
           </div>
-
         </form>
       </div>
-
     );
   }
 }

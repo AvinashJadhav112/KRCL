@@ -256,6 +256,9 @@ function ResponsiveDrawer(props) {
       <div className={classes.drawer} />
       <List disablePadding>
         <ListItem button>
+          {/* <ListItemIcon>
+            <BarChartIcon />
+          </ListItemIcon> */}
           <ListItemAvatar>
             <Avatar src="https://media-exp1.licdn.com/dms/image/C510BAQG5ZbXEnRc_lg/company-logo_200_200/0/1546595027857?e=2159024400&v=beta&t=Xf2t5tivIlq9z-k0eD-VWTwMKx4NjAaDVwm4OeaYe4M" alt="Verve Tronics" className={classes.large} />
           </ListItemAvatar>

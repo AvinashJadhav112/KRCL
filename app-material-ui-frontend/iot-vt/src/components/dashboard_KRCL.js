@@ -310,21 +310,6 @@ function Dashboard_KRCL(props) {
               noWrap
               component="div"
             />
-            <div className={classes.search}>
-              <div className={classes.searchIcon}>
-                <SearchIcon />
-              </div>
-
-              <InputBase
-                placeholder="Search…"
-                classes={{
-                  root: classes.inputRoot,
-                  input: classes.inputInput,
-                }}
-                inputProps={{ 'aria-label': 'search' }}
-                style={{ paddingLeft: '15%' }}
-              />
-            </div>
             <div className={classes.grow} />
 
             <div className={classes.sectionDesktop}>
@@ -343,22 +328,8 @@ function Dashboard_KRCL(props) {
         </AppBar>
         <Drawer variant="permanent" open={open}>
           <DrawerHeader>
-            <ListItemAvatar>
-              <Avatar
-                src="//media-exp1.licdn.com/dms/image/C510BAQG5ZbXEnRc_lg/company-logo_200_200/0/1546595027857?e=2159024400&v=beta&t=Xf2t5tivIlq9z-k0eD-VWTwMKx4NjAaDVwm4OeaYe4M"
-                alt="Verve Tronics"
-                className={classes.large}
-              />
-            </ListItemAvatar>
-            <a
-              href="//www.vervetronics.com/"
-              style={{ textDecoration: 'none', color: 'black' }}
-            >
-              <ListItemText
-                primary={<Typography variant="h5"> VerveTronics </Typography>}
-                secondary="Imaginering pvt ltd"
-              />
-            </a>
+            <img src="https://www.vervetronics.com/wp-content/uploads/2021/08/cropped-VT_Logo.png" alt="Logo" style={{ height: '4rem', width: '11rem' }} />
+
             <IconButton
               onClick={(ev) => {
                 handleDrawerClose(ev);
@@ -367,6 +338,7 @@ function Dashboard_KRCL(props) {
                 { setOpenMHE(!true); }
                 { setOpenDash(!true); }
                 { setOpenAlert(!true); }
+                { setOpen(!true); }
               }}
             >
               {theme.direction === 'rtl' ? (
@@ -405,7 +377,7 @@ function Dashboard_KRCL(props) {
                   button
                 >
                   <Link
-                    to="/dash_summary/summaryKRCL"
+                    to="/alert_summary/AlertsDonutChart"
                     style={{ textDecoration: 'none', color: 'black' }}
                   >
                     <ListItemText className={classes.navitem}>
@@ -484,7 +456,7 @@ function Dashboard_KRCL(props) {
                   button
                 >
                   <Link
-                    to="/alert_equipment_wise/equipmentWiseAlertKRCL"
+                    to="/alert_equipment_wise/equipmentWiseAlert.js"
                     style={{ textDecoration: 'none', color: 'black' }}
                   >
                     <ListItemText className={classes.navitem}>

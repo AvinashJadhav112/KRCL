@@ -1,3 +1,4 @@
+/* eslint-disable import/no-named-as-default */
 /* eslint-disable camelcase */
 /* eslint-disable react/jsx-pascal-case */
 /* eslint-disable arrow-parens */
@@ -317,7 +318,7 @@ function Dashboard(props) {
               noWrap
               component="div"
             />
-            <div className={classes.search}>
+            {/* <div className={classes.search}>
               <div className={classes.searchIcon}>
                 <SearchIcon />
               </div>
@@ -331,7 +332,7 @@ function Dashboard(props) {
                 inputProps={{ 'aria-label': 'search' }}
                 style={{ paddingLeft: '15%' }}
               />
-            </div>
+            </div> */}
             <div className={classes.grow} />
 
             <div className={classes.sectionDesktop}>
@@ -350,22 +351,8 @@ function Dashboard(props) {
         </AppBar>
         <Drawer variant="permanent" open={open}>
           <DrawerHeader>
-            <ListItemAvatar>
-              <Avatar
-                src="//media-exp1.licdn.com/dms/image/C510BAQG5ZbXEnRc_lg/company-logo_200_200/0/1546595027857?e=2159024400&v=beta&t=Xf2t5tivIlq9z-k0eD-VWTwMKx4NjAaDVwm4OeaYe4M"
-                alt="Verve Tronics"
-                className={classes.large}
-              />
-            </ListItemAvatar>
-            <a
-              href="//www.vervetronics.com/"
-              style={{ textDecoration: 'none', color: 'black' }}
-            >
-              <ListItemText
-                primary={<Typography variant="h5"> VerveTronics </Typography>}
-                secondary="Imaginering pvt ltd"
-              />
-            </a>
+            <img src="https://www.vervetronics.com/wp-content/uploads/2021/08/cropped-VT_Logo.png" alt="Logo" style={{ height: '4rem', width: '11rem' }} />
+
             <IconButton
               onClick={(ev) => {
                 handleDrawerClose(ev);
@@ -374,6 +361,7 @@ function Dashboard(props) {
                 { setOpenMHE(!true); }
                 { setOpenDash(!true); }
                 { setOpenAlert(!true); }
+                { setOpen(!true); }
               }}
             >
               {theme.direction === 'rtl' ? (
@@ -416,7 +404,7 @@ function Dashboard(props) {
 
                 <List>
                   <Link
-                    to="/um_company/company.js"
+                    to="/um_company/companyTable.js"
                     style={{ textDecoration: 'none', color: 'black' }}
                   >
                     <ListItem id="customer" style={{ paddingLeft: '30%' }} value={Company} onClick={(event) => setValue('Company')} button>
@@ -559,7 +547,7 @@ function Dashboard(props) {
               <Collapse in={openDash} timeout="auto" unmountOnExit>
                 <List>
                   <Link
-                    to="/dash_summary/summaryDashboard.js"
+                    to="/alert_summary/AlertsDonutChart"
                     style={{ textDecoration: 'none', color: 'black' }}
                   >
                     <ListItem
@@ -702,14 +690,15 @@ function Dashboard(props) {
           open={isMenuOpen}
           onClose={handleMenuClose}
         >
-          <MenuItem onClick={handleMenuClose}>
-            <AccountBoxIcon />
-            My account
-          </MenuItem>
 
           <MenuItem onClick={handleMenuClose}>
-            <PersonIcon />
-            Profile
+            <Link
+              to="/components/Profile.js"
+              style={{ textDecoration: 'none', color: 'black' }}
+            >
+              <PersonIcon />
+              Profile
+            </Link>
           </MenuItem>
 
           <MenuItem onClick={handleClickRegister}>
