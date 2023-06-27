@@ -40,9 +40,10 @@ const AlertLineCharts = () => {
     res ? setDates(res.trimmed) : '';
     const fetchData = async () => {
       try {
+        const companyName = localStorage.getItem('CompanyName');
         const alartDataSet = await Promise.all(
           res.datelist.map(async (dateListData) => {
-            const alertCount = await axios.get(`http://192.168.0.194:5005/api/1.0/alert/alertType/countInBetween?start=${dateListData}T00:00:00Z&end=${dateListData}T23:59:59Z`);
+            const alertCount = await axios.get(`http://192.168.0.194:5005/api/1.0/alert/alertType/company/${companyName}/countInBetween?start=${dateListData}T00:00:00Z&end=${dateListData}T23:59:59Z`);
             const dataObject = {
               date: dateListData,
               data: alertCount.data,

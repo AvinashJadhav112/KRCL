@@ -50,6 +50,7 @@ import EquipmentWise from '../dash_equipment/equipmentWise';
 import Alert_Summary from '../alert_summary/summary';
 import EquipmentWiseAlert from '../alert_equipment_wise/EquipmentWiseAlert';
 import RouterKRCL from '../RouterKRCL';
+import Routers from '../Routers';
 
 const drawerWidth = 240;
 
@@ -407,6 +408,25 @@ function Dashboard_KRCL(props) {
                   </Link>
                 </ListItem>
 
+                <Link
+                  to="/dash_equipment/test.js"
+                  style={{ textDecoration: 'none', color: 'black' }}
+                >
+                  <ListItem
+                    id="dash-equipment-test"
+                    style={{ paddingLeft: '30%' }}
+                    value={Test}
+                    onClick={(event) => setValue('EquipmentWiseTest')}
+                    button
+                  >
+
+                    <ListItemText className={classes.navitem}>
+                      Equipment Wise
+                      <br />
+                      Raw&Calculated
+                    </ListItemText>
+                  </ListItem>
+                </Link>
               </List>
             </Collapse>
           </List>
@@ -498,6 +518,7 @@ function Dashboard_KRCL(props) {
 
         <div style={{ width: '85%', marginRight: '5%' }}>
           <RouterKRCL />
+          <Routers />
         </div>
       </Box>
     </div>

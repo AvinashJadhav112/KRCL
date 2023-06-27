@@ -1,6 +1,5 @@
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/prop-types */
-import axios from 'axios';
 import React, { Component } from 'react';
 import Chart from 'react-apexcharts';
 import { withRouter } from 'react-router-dom';
@@ -16,22 +15,23 @@ export class ConditionAlertDonut extends Component {
   }
 
   async componentDidMount() {
-    this.filterDataOfAlerts();
+    // this.filterDataOfAlerts();
+    this.setState({ conditionAlertCount: this.props.data.Condition });
   }
 
-  filterDataOfAlerts = async () => {
-    const date = new Date();
-    const locDate = date.toISOString().split('T')[0];
+  // filterDataOfAlerts = async () => {
+  //   const date = new Date();
+  //   const locDate = date.toISOString().split('T')[0];
 
-    const last24Date = new Date(new Date().setDate(date.getDate()));
-    const dateback24 = last24Date.toISOString().split('T')[0];
-    const responseOfAlertAPI = await axios.get(
-      `http://192.168.0.194:5005/api/1.0/alert/alertType/countInBetween?start=${dateback24}T00:00:00Z&end=${locDate}T23:59:59Z`,
-    );
+  //   const last24Date = new Date(new Date().setDate(date.getDate()));
+  //   const dateback24 = last24Date.toISOString().split('T')[0];
+  //   const responseOfAlertAPI = await axios.get(
+  //     `http://192.168.0.194:5005/api/1.0/alert/alertType/countInBetween?start=${dateback24}T00:00:00Z&end=${locDate}T23:59:59Z`,
+  //   );
 
-    const responseDataObject = await responseOfAlertAPI.data;
-    this.setState({ conditionAlertCount: responseDataObject.Condition });
-  };
+  //   const responseDataObject = await responseOfAlertAPI.data;
+  //   this.setState({ conditionAlertCount: responseDataObject.Condition });
+  // };
 
   render() {
     const { history } = this.props;

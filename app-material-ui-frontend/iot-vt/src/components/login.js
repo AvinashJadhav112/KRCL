@@ -178,6 +178,7 @@ class Login extends Component {
           if (result.status === 200 && this.state.email === 'admin@vervetronics.com') {
             alert('Admin Logged in successfully..');
             this.props.history.push('/alert_summary/AlertsDonutChart');
+            window.localStorage.setItem('CompanyName', 'KRCL');
             window.localStorage.setItem('User', 'Admin');
             window.localStorage.setItem('email', 'krcl@vervetronics.com');
             window.localStorage.setItem('role', 'User');
@@ -186,6 +187,7 @@ class Login extends Component {
             alert('KRCL User logged in successfully..!!');
             this.props.history.push('/alert_summary/AlertsDonutChart');
             window.localStorage.setItem('User', 'KRCL');
+            window.localStorage.setItem('CompanyName', 'KRCL');
             window.localStorage.setItem('email', 'krcl@vervetronics.com');
             window.localStorage.setItem('role', 'User');
             window.location.reload();
