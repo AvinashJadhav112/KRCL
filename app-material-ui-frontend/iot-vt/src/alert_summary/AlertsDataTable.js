@@ -9,11 +9,13 @@ import axios from 'axios';
 import React, { Component } from 'react';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import {
+  Box,
   Collapse, List, ListItem, ListItemButton, ListItemText,
 } from '@mui/material';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import Select from 'react-select';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export class AlertsDataTable extends Component {
   constructor(props) {
@@ -125,6 +127,7 @@ export class AlertsDataTable extends Component {
     // this.setState({days:date})
     const date = new Date();
     if (value === 'seven') {
+      this.setState({ rows: '' });
       const last24Date = new Date(new Date().setDate(date.getDate() - 7));
       this.setState({ dateback: last24Date.toISOString().split('T')[0] });
       //  console.log(this.state.dateback)
@@ -150,6 +153,7 @@ export class AlertsDataTable extends Component {
         ))
       ));
     } else {
+      this.setState({ rows: '' });
       const last24Date = new Date(new Date().setDate(date.getDate() - 15));
       this.setState({ dateback: last24Date.toISOString().split('T')[0] });
       // console.log(this.state.dateback)
@@ -191,14 +195,24 @@ export class AlertsDataTable extends Component {
             />
           </div>
         </div>
-        <div style={{ margin: '2% 0 0 2%', height: 500, width: '100%' }}>
-          <DataGrid
-            rows={this.state.rows}
-            columns={this.state.columns}
-            pageSize={20}
-            components={{ Toolbar: GridToolbar }}
-          />
-        </div>
+
+        {this.state.rows.length === 0
+          ? (
+            <Box sx={{ display: 'flex', margin: '15% 0 0 50%' }}>
+              <CircularProgress />
+            </Box>
+          )
+          : (
+            <div style={{ margin: '2% 0 0 2%', height: 500, width: '100%' }}>
+              <DataGrid
+                rows={this.state.rows}
+                columns={this.state.columns}
+                pageSize={20}
+                components={{ Toolbar: GridToolbar }}
+              />
+            </div>
+          )}
+
       </div>
     );
   }
