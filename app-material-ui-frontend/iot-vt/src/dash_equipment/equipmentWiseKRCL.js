@@ -1201,7 +1201,7 @@ class EquipmentWise extends React.Component {
 
                                       <div key={readings.id}>
 
-                                        <b>
+                                        <b className="text-wrap">
                                           {readings.name}
                                         </b>
 
