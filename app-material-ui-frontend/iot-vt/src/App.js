@@ -18,6 +18,7 @@ import Dashboard_KRCL from './components/dashboard_KRCL';
 
 const App = () => {
   const user = window.localStorage.getItem('User');
+  console.log(user)
   return (
 
     <Router>

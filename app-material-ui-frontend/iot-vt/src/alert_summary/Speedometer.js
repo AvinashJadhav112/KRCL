@@ -129,14 +129,14 @@ export default class Speedometer extends React.Component {
           // console.log(ress[0].data);
 
           const values = ress.map((data) => (
-            data.data.calculateSensorReading
+            data.data.latestSensorData
           ));
 
           const result = values.map((dt) => (
-            dt.rawValue
+            dt.map((it) => it.rawValue)
           ));
 
-          const newval = result;
+          const newval = result.flat(1);
 
           const initialValue = 0;
           const sumWithInitial = newval.reduce(

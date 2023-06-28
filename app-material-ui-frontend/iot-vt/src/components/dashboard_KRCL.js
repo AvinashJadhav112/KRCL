@@ -415,7 +415,7 @@ function Dashboard_KRCL(props) {
                   <ListItem
                     id="dash-equipment-test"
                     style={{ paddingLeft: '30%' }}
-                    value={Test}
+                    // value={Test}
                     onClick={(event) => setValue('EquipmentWiseTest')}
                     button
                   >

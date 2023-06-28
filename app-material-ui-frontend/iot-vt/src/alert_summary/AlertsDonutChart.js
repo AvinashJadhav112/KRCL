@@ -38,11 +38,9 @@ const AlertsDonutChart = () => {
         const dateback24 = last24Date.toISOString().split('T')[0];
         const companyName = window.localStorage.getItem('CompanyName');
 
-        if (companyName !== null) {
-          const result = await axios.get(`http://192.168.0.194:5005/api/1.0/alert/alertType/company/${companyName}/countInBetween?start=${dateback24}T00:00:00Z&end=${locDate}T23:59:59Z`);
-          const data = await result.data;
-          setAlertData(data);
-        }
+        const result = await axios.get(`http://192.168.0.194:5005/api/1.0/alert/alertType/countInBetween?start=${dateback24}T00:00:00Z&end=${locDate}T23:59:59Z`);
+        const data = await result.data;
+        setAlertData(data);
       };
       getAlerts();
     } catch (error) {
@@ -66,14 +64,15 @@ const AlertsDonutChart = () => {
           <Grid item md={2.4} sm={4}>
             <Speedometer />
           </Grid>
-          {alertData.length > 0
+          
+          {alertData !== null
             ? (
               <Grid item md={2.4} sm={4}>
                 <ServiceAlertDonut data={alertData} />
               </Grid>
             ) : ''}
 
-          {alertData.length > 0
+          {alertData !== null
             ? (
               <Grid item md={2.4} sm={4}>
                 <ConditionAlertDonut data={alertData} />
@@ -81,7 +80,7 @@ const AlertsDonutChart = () => {
             )
             : ''}
 
-          {alertData.length > 0
+          {alertData !== null
             ? (
               <Grid item md={2.4} sm={4}>
                 <ProductionAlertDonut data={alertData} />

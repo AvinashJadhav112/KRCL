@@ -177,11 +177,11 @@ class Login extends Component {
 
           if (result.status === 200 && this.state.email === 'admin@vervetronics.com') {
             alert('Admin Logged in successfully..');
-            this.props.history.push('/alert_summary/AlertsDonutChart');
             window.localStorage.setItem('CompanyName', 'KRCL');
             window.localStorage.setItem('User', 'Admin');
-            window.localStorage.setItem('email', 'krcl@vervetronics.com');
-            window.localStorage.setItem('role', 'User');
+            window.localStorage.setItem('email', 'admin@vervetronics.com');
+            this.props.history.push('/alert_summary/AlertsDonutChart');
+            // window.localStorage.setItem('role', 'User');
             window.location.reload();
           } else if (result.status === 200 && this.state.email === 'krcl@vervetronics.com') {
             alert('KRCL User logged in successfully..!!');
