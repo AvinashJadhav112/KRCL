@@ -176,7 +176,7 @@ class Login extends Component {
           this.setState({ userData });
 
           if (result.status === 200 && this.state.email === 'admin@vervetronics.com') {
-            alert('Admin Logged in successfully..');
+            // alert('Admin Logged in successfully..');
             window.localStorage.setItem('CompanyName', 'KRCL');
             window.localStorage.setItem('User', 'Admin');
             window.localStorage.setItem('email', 'admin@vervetronics.com');
@@ -184,7 +184,7 @@ class Login extends Component {
             // window.localStorage.setItem('role', 'User');
             window.location.reload();
           } else if (result.status === 200 && this.state.email === 'krcl@vervetronics.com') {
-            alert('KRCL User logged in successfully..!!');
+            // alert('KRCL User logged in successfully..!!');
             this.props.history.push('/alert_summary/AlertsDonutChart');
             window.localStorage.setItem('User', 'KRCL');
             window.localStorage.setItem('CompanyName', 'KRCL');

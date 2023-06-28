@@ -1157,11 +1157,11 @@ class EquipmentWise extends React.Component {
                             <Paper
                               className={useStyles.paper}
                               style={{
-                                backgroundColor: Math.round(readings.rawValue) >= readings.max ? 'red' : 'green',
-                                height: 100,
+                                background: Math.round(readings.rawValue) >= readings.max ? 'linear-gradient(45deg,#e53250,#e17c8d)' : 'linear-gradient(45deg,hsl(168, 76%, 35%),#56e5c8)',
+                                height: 128,
                                 width: 170,
-                                boxShadow: '0px 10px 20px 1px',
-                                borderRadius: '12px',
+                                boxShadow: '0px 3px 6px 2px #adb5bd;',
+                                borderRadius: '8px',
                                 margin: '8px',
                                 overflow: 'hidden',
                               }}

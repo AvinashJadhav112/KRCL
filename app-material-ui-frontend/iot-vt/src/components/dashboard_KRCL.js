@@ -395,7 +395,7 @@ function Dashboard_KRCL(props) {
                   button
                 >
                   <Link
-                    to="/dash_equipment/equipmentWiseKRCL"
+                    to="/dash_equipment/equipmentWise.js"
                     style={{ textDecoration: 'none', color: 'black' }}
                   >
                     <ListItemText className={classes.navitem}>
@@ -460,7 +460,7 @@ function Dashboard_KRCL(props) {
                   button
                 >
                   <Link
-                    to="/alert_summary/alertKRCLSummaryDash"
+                    to="/alert_summary/summary.js"
                     style={{ textDecoration: 'none', color: 'black' }}
                   >
                     <ListItemText className={classes.navitem}>
@@ -517,7 +517,7 @@ function Dashboard_KRCL(props) {
         </Menu>
 
         <div style={{ width: '85%', marginRight: '5%' }}>
-          <RouterKRCL />
+          {/* <RouterKRCL /> */}
           <Routers />
         </div>
       </Box>
